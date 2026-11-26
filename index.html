@@ -1,196 +1,199 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Nafees Fabrics - ERP</title>
-<script src="https://cdn.tailwindcss.com"></script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<style>body{font-family:Inter,system-ui} .sidebar a.active{background:#fff;color:#2563eb}</style>
-</head>
-<body class="bg-[#f1f5f9]">
-
-<!-- LOGIN -->
-<div id="loginPage" class="min-h-screen flex items-center justify-center p-4">
-  <div class="bg-white w-full max-w-md rounded-2xl shadow p-8">
-    <div class="flex items-center gap-2 mb-1"><div class="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center text-white font-bold text-xl">N</div><h1 class="text-2xl font-bold">Nafees Fabrics</h1></div>
-    <p class="text-slate-500 text-sm mb-6">Login to your account</p>
-    <label class="text-sm font-medium">Email</label>
-    <input id="loginEmail" class="w-full border rounded-lg p-3 mt-1 mb-3" placeholder="admin@nafees.com">
-    <label class="text-sm font-medium">Password</label>
-    <input id="loginPass" type="password" class="w-full border rounded-lg p-3 mt-1 mb-2" placeholder="******">
-    <button onclick="doLogin()" class="w-full bg-blue-600 text-white p-3 rounded-lg font-semibold mt-2">Login</button>
-    <p class="text-xs text-center mt-4 text-slate-500">First time? Create Admin below</p>
-    <button onclick="doSignup()" class="w-full border p-3 rounded-lg mt-2 font-medium">Create Admin Account</button>
-    <p id="loginMsg" class="text-red-500 text-sm mt-3 text-center"></p>
-  </div>
-</div>
-
-<!-- APP -->
-<div id="appPage" class="hidden flex">
-  <!-- SIDEBAR -->
-  <div class="w-[240px] bg-[#2563eb] min-h-screen text-white p-5 fixed">
-    <div class="flex items-center gap-2 mb-8"><div class="w-9 h-9 bg-white rounded-lg flex items-center justify-center text-blue-600 font-bold">N</div><div><p class="font-bold leading-none">Nafees Fabrics</p><p class="text-[11px] text-blue-200">ERP System</p></div></div>
-    <p class="text-[11px] text-blue-200 mb-2">MENU</p>
-    <div class="sidebar space-y-1">
-      <a href="#" onclick="showPage('dashboard')" class="active block p-2.5 rounded-lg">Dashboard</a>
-      <a href="#" onclick="showPage('customers')" class="block p-2.5 rounded-lg">Customers</a>
-      <a href="#" onclick="showPage('orders')" class="block p-2.5 rounded-lg">Orders / Sale</a>
-      <a href="#" onclick="showPage('stock')" class="block p-2.5 rounded-lg">Stock / Inventory</a>
-      <a href="#" onclick="showPage('payments')" class="block p-2.5 rounded-lg">Payments</a>
-      <a href="#" onclick="showPage('audit')" class="block p-2.5 rounded-lg">Audit Log</a>
-      <a href="#" onclick="showPage('users')" id="usersMenu" class="block p-2.5 rounded-lg">Users</a>
-    </div>
-    <div class="absolute bottom-5 left-5 right-5">
-      <p id="userInfo" class="text-sm mb-2"></p>
-      <button onclick="doLogout()" class="w-full bg-white text-blue-600 p-2 rounded-lg font-semibold">Logout</button>
-    </div>
-  </div>
-
-  <!-- MAIN -->
-  <div class="ml-[240px] flex-1 p-6">
-    <div class="flex justify-between items-center mb-6"><div><h2 class="text-2xl font-bold">Dashboard</h2><p class="text-slate-500 text-sm">Welcome back, <span id="welcomeName">Admin</span></p></div><button onclick="exportExcel()" class="bg-blue-600 text-white px-4 py-2 rounded-lg">Export Excel</button></div>
-
-    <!-- DASHBOARD -->
-    <div id="page-dashboard">
-      <div class="grid grid-cols-4 gap-4 mb-6">
-        <div class="bg-white p-5 rounded-xl shadow-sm"><p class="text-slate-500 text-sm">Total Customers</p><h3 id="statCustomers" class="text-3xl font-bold mt-1">0</h3><p class="text-green-500 text-xs mt-1">▲ 12% from last month</p></div>
-        <div class="bg-white p-5 rounded-xl shadow-sm"><p class="text-slate-500 text-sm">Today Orders</p><h3 id="statOrders" class="text-3xl font-bold mt-1">0</h3><p class="text-green-500 text-xs mt-1">▲ 8% from yesterday</p></div>
-        <div class="bg-white p-5 rounded-xl shadow-sm"><p class="text-slate-500 text-sm">Total Sale</p><h3 id="statSale" class="text-3xl font-bold mt-1">Rs. 0</h3><p class="text-green-500 text-xs mt-1">▲ 18% from last month</p></div>
-        <div class="bg-white p-5 rounded-xl shadow-sm"><p class="text-slate-500 text-sm">Pending Udhaar</p><h3 id="statUdhaar" class="text-3xl font-bold mt-1 text-red-500">Rs. 0</h3><p class="text-red-500 text-xs mt-1">12 pending payments</p></div>
-      </div>
-      <div class="grid grid-cols-3 gap-4 mb-6">
-        <div class="col-span-2 bg-white p-5 rounded-xl shadow-sm"><h4 class="font-bold mb-3">Monthly Sale</h4><canvas id="saleChart" height="140"></canvas></div>
-        <div class="bg-white p-5 rounded-xl shadow-sm"><h4 class="font-bold mb-3">Fabric Overview</h4><div class="space-y-3 text-sm"><div><div class="flex justify-between"><span>Lawn</span><span>42%</span></div><div class="h-2 bg-slate-100 rounded"><div class="h-2 bg-blue-600 rounded" style="width:42%"></div></div></div><div><div class="flex justify-between"><span>Cotton</span><span>28%</span></div><div class="h-2 bg-slate-100 rounded"><div class="h-2 bg-green-500 rounded" style="width:28%"></div></div></div><div><div class="flex justify-between"><span>Chiffon</span><span>18%</span></div><div class="h-2 bg-slate-100 rounded"><div class="h-2 bg-orange-400 rounded" style="width:18%"></div></div></div><div><div class="flex justify-between"><span>Other</span><span>12%</span></div><div class="h-2 bg-slate-100 rounded"><div class="h-2 bg-purple-500 rounded" style="width:12%"></div></div></div></div></div>
-      </div>
-      <div class="grid grid-cols-2 gap-4">
-        <div class="bg-white p-5 rounded-xl shadow-sm"><h4 class="font-bold mb-3">Today Orders</h4><div id="todayOrders" class="space-y-3 text-sm"></div></div>
-        <div class="bg-white p-5 rounded-xl shadow-sm"><h4 class="font-bold mb-3">Recent Sale</h4><div id="recentSale" class="space-y-3 text-sm"></div></div>
-      </div>
-    </div>
-
-    <!-- USERS -->
-    <div id="page-users" class="hidden bg-white p-6 rounded-xl">
-      <h3 class="font-bold text-lg mb-1">Users Management</h3><p class="text-slate-500 text-sm mb-4">Admin can create Boss / Manager with custom password</p>
-      <div class="grid grid-cols-4 gap-3 mb-4">
-        <input id="uName" class="border p-3 rounded-lg" placeholder="Full Name - e.g. Boss">
-        <input id="uEmail" class="border p-3 rounded-lg" placeholder="Email">
-        <input id="uPass" class="border p-3 rounded-lg" placeholder="Your Choice Password">
-        <select id="uRole" class="border p-3 rounded-lg"><option value="boss">Boss</option><option value="manager">Manager</option></select>
-      </div>
-      <button onclick="createUser()" class="bg-blue-600 text-white px-5 py-2.5 rounded-lg font-semibold">Create User</button>
-      <p id="userMsg" class="text-sm mt-2"></p>
-      <div id="usersList" class="mt-5 space-y-2"></div>
-    </div>
-
-    <!-- OTHER PAGES -->
-    <div id="page-customers" class="hidden bg-white p-6 rounded-xl"><h3 class="font-bold text-lg mb-4">Add Customer</h3><div class="grid grid-cols-3 gap-3"><input id="cName" class="border p-3 rounded-lg" placeholder="Customer Name"><input id="cPhone" class="border p-3 rounded-lg" placeholder="Phone"><input id="cCity" class="border p-3 rounded-lg" placeholder="City"></div><button onclick="addCustomer()" class="bg-blue-600 text-white px-5 py-2.5 rounded-lg mt-3">Save Customer</button><div id="customersList" class="mt-5 space-y-2"></div></div>
-    <div id="page-orders" class="hidden bg-white p-6 rounded-xl"><h3 class="font-bold text-lg mb-4">New Order / Sale</h3><div class="grid grid-cols-4 gap-3"><input id="oCust" class="border p-3 rounded-lg" placeholder="Customer Name"><input id="oFabric" class="border p-3 rounded-lg" placeholder="Fabric - Lawn"><input id="oMeter" type="number" class="border p-3 rounded-lg" placeholder="Meters"><input id="oAmount" type="number" class="border p-3 rounded-lg" placeholder="Amount Rs."></div><select id="oStatus" class="border p-3 rounded-lg mt-3"><option>Paid</option><option>Pending</option><option>Udhaar</option></select><button onclick="addOrder()" class="bg-blue-600 text-white px-5 py-2.5 rounded-lg mt-3 ml-2">Save Sale</button><div id="ordersList" class="mt-5 space-y-2"></div></div>
-    <div id="page-stock" class="hidden bg-white p-6 rounded-xl"><h3 class="font-bold text-lg mb-4">Add Stock</h3><div class="grid grid-cols-3 gap-3"><input id="sFabric" class="border p-3 rounded-lg" placeholder="Fabric Name"><input id="sMeter" type="number" class="border p-3 rounded-lg" placeholder="Meters"><input id="sPrice" type="number" class="border p-3 rounded-lg" placeholder="Price / Meter"></div><button onclick="addStock()" class="bg-blue-600 text-white px-5 py-2.5 rounded-lg mt-3">Save Stock</button><div id="stockList" class="mt-5 space-y-2"></div></div>
-    <div id="page-payments" class="hidden bg-white p-6 rounded-xl"><h3 class="font-bold text-lg mb-4">Payments</h3><p class="text-slate-500 text-sm">All payments from Orders show here. Total Sale and Udhaar auto calculated.</p><div id="paymentsList" class="mt-4 space-y-2"></div></div>
-    <div id="page-audit" class="hidden bg-white p-6 rounded-xl"><h3 class="font-bold text-lg mb-4">Audit Log - Who Did What, When</h3><p class="text-slate-500 text-sm mb-4">Cannot be deleted. Only Admin & Boss can see.</p><div id="auditList" class="space-y-2"></div></div>
-  </div>
-</div>
-
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged, createUserWithEmailAndPassword as createSecondary } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import { getFirestore, collection, addDoc, getDocs, query, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-
-const firebaseConfig = { apiKey:"AIzaSyBkHScpFfi-DsS9fiD-oOQaraYq-oHI5r4", authDomain:"nafees-fabrics-erp.firebaseapp.com", projectId:"nafees-fabrics-erp", storageBucket:"nafees-fabrics-erp.firebasestorage.app", messagingSenderId:"571493138786", appId:"1:571493138786:web:c7f44f8a1b819a77702c3b", measurementId:"G-HZ5E8HNFCG" };
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
-let currentUser = null, currentRole = "admin";
-
-window.showPage = (p)=>{
-  ['dashboard','users','customers','orders','stock','payments','audit'].forEach(x=>document.getElementById('page-'+x).classList.add('hidden'));
-  document.getElementById('page-'+p).classList.remove('hidden');
-  document.querySelectorAll('.sidebar a').forEach(a=>a.classList.remove('active'));
-  loadAll();
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NAFEES FABRICS INTERNATIONAL - ERP</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Poppins:wght@600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;font-family:'Inter',sans-serif}body{margin:0;background:#EEF2F7;color:#0F172A}
+h1,h2,h3{font-family:'Poppins',sans-serif}
+.loginWrap{min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#0A1E36 0%,#1E3A5F 50%,#C9A227 130%);padding:16px}
+.loginBox{background:#fff;width:100%;max-width:430px;border-radius:28px;padding:36px;text-align:center;box-shadow:0 24px 60px rgba(0,0,0,.35)}
+.loginBox h1{font-size:27px;line-height:1.15;margin:12px 0 6px;letter-spacing:-.5px}.loginBox h1 span{color:#C9A227}
+input,select{width:100%;padding:12px 13px;border:1.5px solid #E2E8F0;border-radius:12px;margin:6px 0;font-size:13px;outline:none;background:#F8FAFC}input:focus,select:focus{border-color:#0A1E36;background:#fff}
+.btnD{background:#0A1E36;color:#fff;border:0;padding:13px 20px;border-radius:12px;font-weight:800;cursor:pointer}.btnG{background:linear-gradient(135deg,#C9A227,#E7C95A);color:#0A1E36;border:0;padding:10px 16px;border-radius:12px;font-weight:800;cursor:pointer}.btnL{background:#fff;border:1px solid #E2E8F0;padding:7px 10px;border-radius:8px;cursor:pointer;font-weight:600;font-size:12px}.btnW{background:#25D366;color:#fff;border:0;padding:7px 10px;border-radius:8px;cursor:pointer;font-weight:800;font-size:12px}
+.app{display:flex}.side{width:272px;background:linear-gradient(180deg,#0A1E36,#0F2A4A);color:#fff;min-height:100vh;padding:22px;position:sticky;top:0;flex-shrink:0}.side h2{margin:0;font-size:18px;line-height:1.3}.side h2 span{color:#C9A227}
+.menu button{display:flex;gap:10px;width:100%;text-align:left;background:transparent;color:#CBD5E1;border:0;padding:12px 12px;border-radius:12px;cursor:pointer;font-weight:600;font-size:13px;margin-bottom:3px}.menu button:hover{background:rgba(255,255,255,.08)}.menu button.active{background:linear-gradient(135deg,#C9A227,#E7C95A);color:#0A1E36;font-weight:800;box-shadow:0 6px 18px rgba(201,162,39,.35)}
+.main{flex:1;padding:20px;max-width:1480px}.top{background:#fff;border:1px solid #E2E8F0;border-radius:20px;padding:18px 22px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;box-shadow:0 4px 18px rgba(0,0,0,.04)}.top h1{margin:0;font-size:22px;letter-spacing:-.5px}.top p{margin:2px 0 0;color:#64748B;font-size:12px}
+.kpiRow{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:16px}.kpi{background:#fff;border:1px solid #E2E8F0;border-radius:20px;padding:20px;position:relative;overflow:hidden;box-shadow:0 4px 18px rgba(0,0,0,.04)}.kpi::after{content:"";position:absolute;left:0;top:0;bottom:0;width:5px;background:var(--c,#0A1E36)}.kpi label{font-size:11px;color:#64748B;font-weight:800;letter-spacing:.7px}.kpi b{display:block;font-size:24px;margin-top:7px;letter-spacing:-.6px;font-family:'Poppins'}.kpi p{margin:7px 0 0;color:#64748B;font-size:12px}.kpi .pct{font-size:11px;font-weight:800;padding:4px 9px;border-radius:999px;background:#DCFCE7;color:#166534;display:inline-block;margin-top:8px}
+.chartRow{display:grid;grid-template-columns:1.25fr .75fr;gap:14px;margin-top:14px}.chartBox{background:#fff;border:1px solid #E2E8F0;border-radius:20px;padding:22px;box-shadow:0 4px 18px rgba(0,0,0,.04)}.chartBox h3{margin:0;font-size:16px}.chartBox p{margin:4px 0 0;color:#64748B;font-size:12px}
+.bars{display:flex;align-items:flex-end;gap:20px;height:180px;margin-top:20px;border-bottom:1px solid #E2E8F0;padding:0 8px}.barWrap{flex:1;text-align:center}.bar{margin:0 auto;border-radius:10px 10px 0 0;width:100%;max-width:48px;min-height:10px}.barWrap span{font-size:11px;font-weight:700;color:#334155;display:block;margin-top:9px;line-height:1.35}
+.donut{width:160px;height:160px;border-radius:50%;margin:20px auto 0;position:relative;display:flex;align-items:center;justify-content:center;background:conic-gradient(#0A1E36 0 38%,#C9A227 38% 62%,#22C55E 62% 82%,#E2E8F0 82% 100%);box-shadow:0 8px 20px rgba(0,0,0,.08)}.donut::after{content:"";position:absolute;inset:30px;background:#fff;border-radius:50%}.donut b{position:relative;z-index:1;font-size:21px;font-family:'Poppins'}
+.legend{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-top:16px}.legend span{font-size:11px;font-weight:700;display:flex;gap:6px;align-items:center}.dot{width:10px;height:10px;border-radius:50%;display:inline-block}
+.box{background:#fff;border:1px solid #E2E8F0;border-radius:20px;padding:20px;margin-top:14px;box-shadow:0 4px 18px rgba(0,0,0,.04)}.box h3{margin:0;font-size:15px}.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}label{font-size:11px;font-weight:700;color:#334155}
+table{width:100%;border-collapse:collapse;margin-top:12px}th{background:#0A1E36;color:#fff;padding:12px;text-align:left;font-size:11px;white-space:nowrap}td{padding:12px;border-bottom:1px solid #F1F5F9;font-size:13px;white-space:nowrap}.hidden{display:none}
+.badgeP{background:#FEF9C3;color:#854D0E;padding:4px 10px;border-radius:999px;font-size:11px;font-weight:800}.badgeA{background:#DCFCE7;color:#166534;padding:4px 10px;border-radius:999px;font-size:11px;font-weight:800}.badgeR{background:#FEE2E2;color:#991B1B;padding:4px 10px;border-radius:999px;font-size:11px;font-weight:800}
+.tabBtn{padding:10px 18px;border:1px solid #E2E8F0;background:#fff;border-radius:12px;font-weight:800;cursor:pointer}.tabBtn.active{background:#0A1E36;color:#fff}
+.subTab{padding:10px 16px;border:1px solid #E2E8F0;background:#fff;border-radius:999px;font-weight:800;cursor:pointer;font-size:13px}.subTab.active{background:#C9A227;color:#0A1E36;border-color:#C9A227}
+.remind{background:#FEF2F2;border:1px solid #FECACA;border-radius:20px;padding:16px;margin-top:14px}.remind h3{margin:0;color:#991B1B}
+.att{width:32px;text-align:center;cursor:pointer;font-weight:800;border-radius:6px}.att.P{background:#DCFCE7}.att.A{background:#FEE2E2}.att.H{background:#FEF9C3}.att.L{background:#E0E7FF}
+@media(max-width:900px){.side{display:none}.kpiRow,.grid4,.chartRow{grid-template-columns:1fr 1fr}}
+@media print{body *{visibility:hidden}#printArea,#printArea *{visibility:visible}#printArea{position:absolute;left:0;top:0;width:100%}.no-print{display:none!important}}
+</style></head><body>
+<div id="loginScreen" class="loginWrap"><div class="loginBox"><div style="width:68px;height:68px;background:#0A1E36;color:#C9A227;display:flex;align-items:center;justify-content:center;border-radius:20px;margin:0 auto;font-size:32px;font-weight:900;font-family:Poppins">N</div><h1>NAFEES FABRICS<br><span>INTERNATIONAL</span></h1><p style="color:#64748B;font-size:13px;margin:0 0 16px">ERP SYSTEM - FAISALABAD</p><input id="uName" placeholder="Username"><input id="uPass" type="password" placeholder="Password"><button class="btnD" onclick="doLogin()" style="width:100%">LOGIN</button><button onclick="resetLogin()" style="width:100%;margin-top:8px;background:#FEE2E2;border:1px solid #FECACA;padding:11px;border-radius:12px;font-weight:800;cursor:pointer">RESET LOGIN</button><p id="loginErr" style="color:#DC2626;font-weight:700"></p><div style="background:#F8FAFC;border:1px solid #E2E8F0;border-radius:14px;padding:12px;text-align:left;font-size:12px;line-height:1.7"><b>DEFAULT LOGIN</b><br>ADMIN - admin / Admin@123<br>BOSS - boss / Boss@123<br>MANAGER - manager / Manager@123</div></div></div>
+<div id="appScreen" class="app hidden"><div class="side no-print"><h2>NAFEES FABRICS<br><span>INTERNATIONAL</span></h2><p style="font-size:11px;color:#94A3B8" id="whoInfo"></p><div class="menu" id="menu"></div><button class="btnG" onclick="exportBackup()" style="width:100%">DOWNLOAD BACKUP</button><button class="btnL" onclick="document.getElementById('importFile').click()" style="width:100%;margin-top:8px">RESTORE BACKUP</button><input type="file" id="importFile" accept=".json" style="display:none" onchange="importBackup(event)"><button class="btnG" style="width:100%;margin-top:14px" onclick="logout()">LOGOUT</button></div>
+<div class="main"><div id="printArea"><div class="top"><div><h1 id="pageTitle">DASHBOARD</h1><p>NAFEES FABRICS INTERNATIONAL - ERP</p></div><div class="no-print"><button class="btnG" onclick="window.print()">PRINT / PDF</button></div></div><div id="content"></div></div></div></div>
+<script>
+let DEFAULT_USERS={boss:{pass:"Boss@123",role:"BOSS",name:"BOSS",access:"ALL"},admin:{pass:"Admin@123",role:"ADMIN",name:"ADMIN",access:"ALL"},manager:{pass:"Manager@123",role:"MANAGER",name:"MANAGER",access:"ALL"}};
+let USERS;try{USERS=JSON.parse(localStorage.getItem("nafees_users")||"null")||DEFAULT_USERS}catch(e){USERS=DEFAULT_USERS} USERS.admin=DEFAULT_USERS.admin;USERS.boss=DEFAULT_USERS.boss;USERS.manager=DEFAULT_USERS.manager;
+function saveUsers(){try{localStorage.setItem("nafees_users",JSON.stringify(USERS))}catch(e){}}
+function resetLogin(){try{localStorage.removeItem("nafees_users")}catch(e){} USERS=JSON.parse(JSON.stringify(DEFAULT_USERS));saveUsers();document.getElementById("uName").value="admin";document.getElementById("uPass").value="Admin@123";alert("Reset Done.")}
+function doLogin(){let u=document.getElementById("uName").value.trim().toLowerCase(),p=document.getElementById("uPass").value.trim();if((USERS[u]&&USERS[u].pass===p)||(DEFAULT_USERS[u]&&DEFAULT_USERS[u].pass===p)){let f=USERS[u]||DEFAULT_USERS[u];currentUser={user:u,role:f.role,name:f.name,access:f.access||"ALL"};try{localStorage.setItem("nafees_session",JSON.stringify(currentUser))}catch(e){} showApp();}else{document.getElementById("loginErr").innerText="Invalid Username Or Password";}}
+let ALL_PAGES=["Dashboard","Yarn Purchase","Yarn Stock","Sizing","Beams","Dyeing","Grey Stock","Ready Stock","Shop Ready Stock","Meter Reading","Ledger","Salary","Contract","Shopify","User Management"];
+let TABS={"Yarn Purchase":["ALL","PO CREATED","GRN DONE","BILL RECEIVED","COMPLETED"],"Yarn Stock":["ALL","YARN","COTTON","POLYESTER"],"Sizing":["ALL","SIZING","BEAM READY"],"Beams":["ALL","READY","ON LOOM","EMPTY"],"Dyeing":["ALL","DYEING","FINISHED","PENDING"],"Grey Stock":["ALL","GREY","REJECTED","CHECKED"],"Ready Stock":["ALL","THAAN","SUIT","T.P SUIT","B GRADE","CUT PIECE","CUTTING"],"Shop Ready Stock":["ALL","THAAN","SUIT","T.P SUIT","B GRADE","CUT PIECE","CUTTING"],"Meter Reading":["ALL","FACTORY","COLONY"],"Contract":["ALL","WEAVER","SIZING","DYEING"],"Shopify":["ALL","NEW ORDER","SHIPPED","DELIVERED","RETURN"]};
+let currentUser=null;try{currentUser=JSON.parse(localStorage.getItem("nafees_session")||"null")}catch(e){} let cur="Dashboard";let DB={};
+function loadDB(){let keys=["nafees_cloud_v12","nafees_full_v12","nafees_full_v12_backup1"];for(let k of keys){try{let v=JSON.parse(localStorage.getItem(k)||"{}");if(v&&Object.keys(v).length){DB=v;return}}catch(e){}}DB={}} loadDB();
+ALL_PAGES.forEach(p=>{if(!DB[p])DB[p]=[]}); if(!DB._meta)DB._meta={}; if(!DB._tabs)DB._tabs={};
+function getTab(page){ if(DB._tabs[page]) return DB._tabs[page]; if(TABS[page]) return TABS[page][0]; return "ALL"; }
+function setTab(page,tab){ try{DB._tabs[page]=tab; saveDB(); renderPage();}catch(e){} }
+function tabBar(page){ if(!TABS[page]) return ""; let ct=getTab(page); let h='<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px" class="no-print">'; for(let i=0;i<TABS[page].length;i++){ let t=TABS[page][i]; h+='<button class="subTab '+(t===ct?"active":"")+'" onclick="setTab(\''+page+'\',\''+t+'\')">'+t+'</button>'; } h+='</div>'; return h; }
+function matchesTab(row,page,ct){ if(ct==="ALL") return true; let v=(row.cat||row.status||row.type||"").toUpperCase(); return v===ct.toUpperCase(); }
+function saveDB(){try{DB._meta.lastSync=new Date().toISOString();let s=JSON.stringify(DB);localStorage.setItem("nafees_cloud_v12",s);localStorage.setItem("nafees_full_v12",s);localStorage.setItem("nafees_full_v12_backup1",s);}catch(e){}}}
+function exportBackup(){try{let blob=new Blob([JSON.stringify({users:USERS,db:DB,exported:new Date().toISOString()},null,2)],{type:"application/json"});let a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="NAFEES-FABRICS-BACKUP-"+new Date().toISOString().slice(0,10)+".json";a.click();}catch(e){}}
+function importBackup(e){let f=e.target.files[0];let r=new FileReader();r.onload=function(){try{let d=JSON.parse(r.result);DB=d.db||d;if(d.users)USERS=d.users;saveUsers();saveDB();renderPage();alert("Backup Restored.");}catch(err){alert("Invalid Backup")}};r.readAsText(f);}
+function logout(){try{saveDB();localStorage.removeItem("nafees_session")}catch(e){} currentUser=null;document.getElementById("loginScreen").classList.remove("hidden");document.getElementById("appScreen").classList.add("hidden");}
+function showApp(){document.getElementById("loginScreen").classList.add("hidden");document.getElementById("appScreen").classList.remove("hidden");document.getElementById("whoInfo").innerText=currentUser.name+" - "+currentUser.role+" - "+new Date().toISOString().slice(0,10);renderMenu();renderPage();}
+function hasAccess(p){if(currentUser.role==="ADMIN"||currentUser.role==="BOSS")return true;if(currentUser.access==="ALL")return true;return (currentUser.access||[]).includes(p)}
+function canEntry(){return currentUser.role!=="BOSS"} function canDelete(){return currentUser.role==="ADMIN"} function canApprove(){return currentUser.role==="BOSS"||currentUser.role==="ADMIN"}
+function renderMenu(){document.getElementById("menu").innerHTML=ALL_PAGES.filter(p=>p==="Dashboard"||hasAccess(p)).map(p=>`<button class="${p===cur?'active':''}" onclick="go('${p}')">${p}</button>`).join("")}
+function go(p){if(!hasAccess(p)&&p!=="Dashboard"){alert("No Access");return} cur=p;renderMenu();renderPage()}
+function fmt(n){return Number(n||0).toLocaleString()} function today(){return new Date().toISOString().slice(0,10)} function fmtDate(d){if(!d)return "";let p=d.split("-");return p[2]+"-"+p[1]+"-"+p[0]}
+function del(page,idx){if(!canDelete())return alert("Only Admin Can Delete");if(!confirm("Delete?"))return;DB[page].splice(idx,1);saveDB();renderPage()}
+function approve(page,idx){if(!canApprove())return alert("Only Boss / Admin");DB[page][idx].appr="APPROVED";saveDB();renderPage()}
+function reject(page,idx){if(!canApprove())return alert("Only Boss / Admin");DB[page][idx].appr="REJECTED";saveDB();renderPage()}
+function apprBadge(r){if(r==="APPROVED")return '<span class="badgeA">APPROVED</span>';if(r==="REJECTED")return '<span class="badgeR">REJECTED</span>';return '<span class="badgeP">PENDING</span>'}
+function actionBtns(page,idx){let h="";if(canApprove())h+=`<button class="btnL" onclick="approve('${page}',${idx})">Approve</button> <button class="btnL" onclick="reject('${page}',${idx})">Reject</button> `;if(canDelete())h+=`<button class="btnL" onclick="del('${page}',${idx})">Delete</button>`;return h||'VIEW ONLY'}
+function getAllParties(){let s=new Set();try{(DB["Ledger"]||[]).forEach(r=>{if(r.party)s.add(r.party)});(DB["Yarn Purchase"]||[]).forEach(r=>{if(r.party)s.add(r.party)})}catch(e){} return [...s].sort()}
+function partyOptions(){return getAllParties().map(p=>`<option value="${p}">`).join("")}
+function getAllQualities(){let s=new Set();try{ALL_PAGES.forEach(p=>{(DB[p]||[]).forEach(r=>{if(r.quality)s.add(r.quality); if(r.name)s.add(r.name)} )})}catch(e){} return [...s].sort()}
+function qualityOptions(){return getAllQualities().map(q=>`<option value="${q}">`).join("")}
+function getAllNames(page){let s=new Set();try{(DB[page]||[]).forEach(r=>{if(r.name)s.add(r.name); if(r.quality)s.add(r.quality)})}catch(e){} return [...s].sort()}
+function nameOptions(page){return getAllNames(page).map(n=>`<option value="${n}">`).join("")}
+function cleanPhone(p){return (p||"").replace(/[^0-9]/g,"")} function toWhatsAppPhone(p){let d=cleanPhone(p);if(d.startsWith("0"))d="92"+d.slice(1);if(d.length===10)d="92"+d;return d}
+function sendWhatsAppReminder(party,phone,amount,due,bill,refNo,payMode){let msg=`Dear ${party},\n\nReminder from NAFEES FABRICS INTERNATIONAL.\n\nYour payment of Rs ${fmt(amount)} for Bill No ${bill||"-"} (${payMode||""} Ref: ${refNo||"-"}) is due on ${fmtDate(due)}.\n\nKindly make your payment today.\n\nThank you.\n\nNAFEES FABRICS INTERNATIONAL\nFaisalabad`;let ph=toWhatsAppPhone(phone);if(!ph){alert("Party Phone Not Found.");return} window.open("https://wa.me/"+ph+"?text="+encodeURIComponent(msg),"_blank")}
+function getDueReminders(){let t=today();try{return DB["Ledger"].map((r,i)=>({...r,_idx:i})).filter(r=>r.appr!=="REJECTED"&&r.due&&r.due<=t&&(r.credit-r.debit>0))}catch(e){return []}}
+function onPayModeChange(){let m=document.getElementById("lMode").value;document.getElementById("cashBox").style.display=m==="CASH"?"block":"none";document.getElementById("chequeBox").style.display=m==="CHEQUE"?"block":"none";document.getElementById("onlineBox").style.display=m==="ONLINE"?"block":"none";}
+function setLedgerTab(t){ window.ledgerTab=t; renderPage(); }
+function setLedgerParty(v){ window.ledgerParty=v; renderPage(); }
+function renderPage(){
+document.getElementById("pageTitle").innerText=cur.toUpperCase();let c=document.getElementById("content");
+if(cur==="Dashboard"){
+let pur=0,paid=0;try{pur=DB["Yarn Purchase"].filter(x=>x.appr!=="REJECTED").reduce((a,b)=>a+b.total,0);paid=DB["Yarn Purchase"].filter(x=>x.appr!=="REJECTED").reduce((a,b)=>a+b.paid,0)}catch(e){}
+let grey=0,ready=0,shop=0,yarnSt=0,meterTotal=0,meterPaid=0;try{grey=DB["Grey Stock"].filter(x=>x.appr!=="REJECTED").reduce((a,b)=>a+b.balance,0);ready=DB["Ready Stock"].filter(x=>x.appr!=="REJECTED").reduce((a,b)=>a+b.balance,0);shop=DB["Shop Ready Stock"].filter(x=>x.appr!=="REJECTED").reduce((a,b)=>a+b.balance,0);yarnSt=DB["Yarn Stock"].filter(x=>x.appr!=="REJECTED").reduce((a,b)=>a+b.balance,0);meterTotal=DB["Meter Reading"].filter(x=>x.appr!=="REJECTED").reduce((a,b)=>a+(b.total||0),0);meterPaid=DB["Meter Reading"].filter(x=>x.appr!=="REJECTED").reduce((a,b)=>a+(b.paid||0),0)}catch(e){}
+let dues=getDueReminders();
+let payPct=pur?Math.round(paid/pur*100):0;
+let prodTotal=grey+ready+shop+yarnSt||1;
+c.innerHTML=`${dues.length?`<div class="remind"><h3>PAYMENT REMINDERS - ${dues.length} DUE TODAY / OVERDUE</h3>${dues.slice(0,6).map(r=>`<div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid #FECACA;flex-wrap:wrap;gap:8px"><span><b>${r.party}</b> - Bill ${r.bill} - ${r.payMode} ${r.refNo||""} - Rs ${fmt(r.credit-r.debit)} - Due ${fmtDate(r.due)}</span><button class="btnW" onclick="sendWhatsAppReminder('${r.party}','${r.phone||""}',${r.credit-r.debit},'${r.due}','${r.bill}','${r.refNo||""}','${r.payMode||""}')">SEND WHATSAPP</button></div>`).join("")}</div>`:""}
+<div class="kpiRow"><div class="kpi" style="--c:#0A1E36"><label>TOTAL MANUFACTURING COST</label><b>Rs ${fmt(pur)}</b><p>Paid Rs ${fmt(paid)} | Remaining Rs ${fmt(pur-paid)}</p><span class="pct">${payPct}% PAID</span></div><div class="kpi" style="--c:#C9A227"><label>YARN STOCK</label><b>${fmt(yarnSt)} Bags</b><p>Opening + Received - Used</p></div><div class="kpi" style="--c:#22C55E"><label>GREY STOCK</label><b>${fmt(grey)}</b><p>Production - Sale</p></div><div class="kpi" style="--c:#8B5CF6"><label>READY + SHOP STOCK</label><b>${fmt(ready+shop)}</b><p>Ready ${fmt(ready)} | Shop ${fmt(shop)}</p></div></div>
+<div class="chartRow"><div class="chartBox"><h3>Manufacturing Cost Overview</h3><p>Purchase vs Paid vs Remaining</p><div class="bars"><div class="barWrap"><div class="bar" style="height:${pur?100:8}px;background:linear-gradient(180deg,#0A1E36,#4A7AB5)"></div><span>PURCHASE<br>Rs ${fmt(pur)}</span></div><div class="barWrap"><div class="bar" style="height:${pur?Math.max(12,paid/pur*100):8}px;background:linear-gradient(180deg,#22C55E,#86EFAC)"></div><span>PAID<br>Rs ${fmt(paid)}</span></div><div class="barWrap"><div class="bar" style="height:${pur?Math.max(12,(pur-paid)/pur*100):8}px;background:linear-gradient(180deg,#C9A227,#FDE68A)"></div><span>REMAINING<br>Rs ${fmt(pur-paid)}</span></div><div class="barWrap"><div class="bar" style="height:${meterTotal?Math.max(12,meterTotal/(pur||1)*100):8}px;background:linear-gradient(180deg,#8B5CF6,#C4B5FD)"></div><span>METER BILL<br>Rs ${fmt(meterTotal)}</span></div></div></div><div class="chartBox"><h3>Production Distribution</h3><p>Stock Share</p><div class="donut"><b>${fmt(prodTotal)}</b></div><div class="legend"><span><i class="dot" style="background:#0A1E36"></i>GREY ${fmt(grey)}</span><span><i class="dot" style="background:#C9A227"></i>READY ${fmt(ready)}</span><span><i class="dot" style="background:#22C55E"></i>SHOP ${fmt(shop)}</span><span><i class="dot" style="background:#E2E8F0"></i>YARN ${fmt(yarnSt)}</span></div></div></div>
+<div class="box"><h3>Manufacturing Cost Report - Party Wise</h3><table><tr><th>PARTY</th><th>TOTAL</th><th>PAID</th><th>REMAINING</th><th>STATUS</th></tr>${[...new Set(DB["Yarn Purchase"].map(x=>x.party))].map(p=>{let rows=DB["Yarn Purchase"].filter(x=>x.party===p);let t=rows.reduce((a,b)=>a+b.total,0),pd=rows.reduce((a,b)=>a+b.paid,0);return `<tr><td><b>${p}</b></td><td>${fmt(t)}</td><td>${fmt(pd)}</td><td><b>${fmt(t-pd)}</b></td><td>${t-pd<=0?"PAID":"PENDING"}</td></tr>`}).join("")||"<tr><td colspan=5>No Purchase Yet</td></tr>"} </table></div>`;return}
+if(cur==="Yarn Purchase"){
+let tab2=getTab("Yarn Purchase");
+let form2=canEntry()?`<div class="box no-print"><h3>Yarn Purchase</h3><div class="grid4"><div><label>DATE</label><input id="f1" type="date" value="${today()}"></div><div><label>SUPPLIER</label><input id="f2" list="supList"><datalist id="supList">${partyOptions()}</datalist></div><div><label>QUALITY</label><input id="f3" list="qList"><datalist id="qList">${qualityOptions()}</datalist></div><div><label>COUNT</label><input id="fCount" placeholder="30/1, 40/1"></div><div><label>QTY - BAGS</label><input id="f4" type="number"></div><div><label>RATE</label><input id="f5" type="number"></div><div><label>PAID</label><input id="f6" type="number"></div><div><label>DEBIT</label><input id="fDebit" type="number"></div><div><label>CREDIT</label><input id="fCredit" type="number"></div><div><label>BILL NO</label><input id="fBill"></div><div><label>STATUS</label><select id="f10"><option>PO CREATED</option><option>GRN DONE</option><option>BILL RECEIVED</option><option>COMPLETED</option></select></div><div><label>DUE DATE</label><input id="fDue" type="date"></div></div><button class="btnD" onclick="savePur()" style="width:auto">SAVE PURCHASE</button></div>`:`<div class="box">BOSS - VIEW ONLY</div>`;
+let rows2=""; DB["Yarn Purchase"].forEach((r,i)=>{ if(!matchesTab(r,"Yarn Purchase",tab2)) return; rows2+=`<tr><td>${fmtDate(r.date)}</td><td><b>${r.party}</b></td><td>${r.quality}</td><td>${r.count||""}</td><td>${r.qty}</td><td>${fmt(r.rate)}</td><td>${fmt(r.total)}</td><td>${fmt(r.debit||0)}</td><td>${fmt(r.credit||0)}</td><td>${fmt(r.paid)}</td><td><b>${fmt(r.rem)}</b></td><td>${r.bill||""}</td><td>${apprBadge(r.appr)}</td><td>${actionBtns("Yarn Purchase",i)}</td></tr>`; });
+if(!rows2) rows2=`<tr><td colspan=14>No Entry Yet</td></tr>`;
+c.innerHTML=form2+`<div class="box">${tabBar("Yarn Purchase")}<h3>Purchase Register</h3><table><tr><th>DATE</th><th>SUPPLIER</th><th>QUALITY</th><th>COUNT</th><th>QTY</th><th>RATE</th><th>TOTAL</th><th>DEBIT</th><th>CREDIT</th><th>PAID</th><th>REMAINING</th><th>BILL</th><th>APPROVAL</th><th>ACTION</th></tr>${rows2}</table></div>`;
+window.savePur=function(){ try{let party=document.getElementById("f2").value.toUpperCase().trim(); let qty=+document.getElementById("f4").value||0; let rate=+document.getElementById("f5").value||0; let paid=+document.getElementById("f6").value||0; if(!party||!qty) return alert("Supplier And Qty Required"); let total=qty*rate; let debit=+document.getElementById("fDebit").value||total; let credit=+document.getElementById("fCredit").value||paid; let bill=document.getElementById("fBill").value.toUpperCase(); DB["Yarn Purchase"].unshift({date:document.getElementById("f1").value||today(),party:party,quality:document.getElementById("f3").value.toUpperCase(),count:document.getElementById("fCount").value.toUpperCase(),qty:qty,rate:rate,total:total,debit:debit,credit:credit,paid:paid,rem:total-paid,bill:bill,status:document.getElementById("f10").value,appr:"PENDING"}); DB["Ledger"].unshift({date:document.getElementById("f1").value||today(),party:party,phone:"",bill:bill||"PO-"+(1000+DB["Yarn Purchase"].length),payMode:"CASH",refNo:"PURCHASE",chequeStatus:"",cashBy:"",type:"PAYABLE",debit:debit,credit:credit,due:document.getElementById("fDue").value,remDate:document.getElementById("fDue").value,details:"YARN PURCHASE - "+document.getElementById("f3").value.toUpperCase(),appr:"PENDING"}); saveDB(); renderPage();}catch(e){alert("Error - Data Not Lost.")} };
+return}
+if(cur==="Yarn Stock"){
+let tabY=getTab("Yarn Stock");
+let formY=canEntry()?`<div class="box no-print"><h3>Yarn Stock</h3><div class="grid4"><div><label>DATE</label><input id="y1" type="date" value="${today()}"></div><div><label>QUALITY</label><input id="y2" list="yList"><datalist id="yList">${nameOptions("Yarn Stock")}</datalist></div><div><label>COUNT</label><input id="yCount" placeholder="30/1"></div><div><label>OPENING BALANCE</label><input id="y3" type="number"></div><div><label>RECEIVED</label><input id="y4" type="number"></div><div><label>USED</label><input id="y5" type="number"></div><div><label>LOCATION</label><input id="yLoc" placeholder="GODOWN / FACTORY / SIZING"></div><div><label>RATE</label><input id="y6" type="number"></div></div><button class="btnD" onclick="saveYarnStock()" style="width:auto">SAVE YARN STOCK</button></div>`:`<div class="box">BOSS - VIEW ONLY</div>`;
+let rowsY=""; DB["Yarn Stock"].forEach((r,i)=>{ if(!matchesTab(r,"Yarn Stock",tabY)) return; rowsY+=`<tr><td>${fmtDate(r.date)}</td><td><b>${r.name}</b></td><td>${r.count||""}</td><td>${r.open}</td><td>${r.rec}</td><td>${r.out}</td><td><b>${r.balance}</b></td><td>${r.location||""}</td><td>${fmt(r.rate||0)}</td><td>${fmt(r.total||0)}</td><td>${apprBadge(r.appr)}</td><td>${actionBtns("Yarn Stock",i)}</td></tr>`; });
+if(!rowsY) rowsY=`<tr><td colspan=12>No Entry Yet</td></tr>`;
+c.innerHTML=formY+`<div class="box">${tabBar("Yarn Stock")}<h3>Yarn Stock</h3><table><tr><th>DATE</th><th>QUALITY</th><th>COUNT</th><th>OPENING</th><th>RECEIVED</th><th>USED</th><th>BALANCE</th><th>LOCATION</th><th>RATE</th><th>TOTAL</th><th>APPROVAL</th><th>ACTION</th></tr>${rowsY}</table></div>`;
+window.saveYarnStock=function(){ try{let n=document.getElementById("y2").value.toUpperCase().trim(); if(!n) return alert("Quality Required"); let o=+document.getElementById("y3").value||0; let r=+document.getElementById("y4").value||0; let out=+document.getElementById("y5").value||0; let rate=+document.getElementById("y6").value||0; DB["Yarn Stock"].unshift({date:document.getElementById("y1").value,name:n,quality:n,count:document.getElementById("yCount").value.toUpperCase(),cat:"YARN",open:o,rec:r,out:out,balance:o+r-out,location:document.getElementById("yLoc").value.toUpperCase(),rate:rate,total:(o+r-out)*rate,appr:"PENDING"}); saveDB(); renderPage();}catch(e){alert("Error - Data Not Lost.")} };
+return}
+if(cur==="Sizing"){
+let tabS=getTab("Sizing");
+let formS=canEntry()?`<div class="box no-print"><h3>Sizing - Chalan Form</h3><div class="grid4"><div><label>DATE</label><input id="s1" type="date" value="${today()}"></div><div><label>CHALAN NO</label><input id="sChalan" placeholder="CH-001"></div><div><label>QUALITY</label><input id="s2" list="sList"><datalist id="sList">${nameOptions("Sizing")}</datalist></div><div><label>YARN QTY SENT - BAGS</label><input id="s3" type="number"></div><div><label>SIZING NAME</label><input id="sName" placeholder="SIZING NAME"></div><div><label>SIZING PARTY</label><input id="sParty" list="sPartyList"><datalist id="sPartyList">${partyOptions()}</datalist></div><div><label>BEAM QTY</label><input id="sBeam" type="number"></div><div><label>RATE</label><input id="sRate" type="number"></div><div><label>VEHICLE / DRIVER</label><input id="sVeh"></div><div><label>RECEIVED BY</label><input id="sRec"></div></div><button class="btnD" onclick="saveSizing()" style="width:auto">SAVE SIZING CHALAN</button> <button class="btnG" onclick="window.print()">PRINT CHALAN</button></div>`:`<div class="box">BOSS - VIEW ONLY</div>`;
+let rowsS=""; DB["Sizing"].forEach((r,i)=>{ if(!matchesTab(r,"Sizing",tabS)) return; rowsS+=`<tr><td>${fmtDate(r.date)}</td><td><b>${r.chalan||""}</b></td><td><b>${r.name}</b></td><td>${r.yarnQty||r.rec||0}</td><td>${r.sizingName||""}</td><td>${r.party||""}</td><td>${r.beamQty||0}</td><td>${fmt(r.rate||0)}</td><td>${r.vehicle||""}</td><td>${r.receivedBy||""}</td><td>${apprBadge(r.appr)}</td><td>${actionBtns("Sizing",i)}</td></tr>`; });
+if(!rowsS) rowsS=`<tr><td colspan=12>No Entry Yet</td></tr>`;
+c.innerHTML=formS+`<div class="box">${tabBar("Sizing")}<h3>Sizing Chalan</h3><table><tr><th>DATE</th><th>CHALAN NO</th><th>QUALITY</th><th>YARN QTY SENT</th><th>SIZING NAME</th><th>PARTY</th><th>BEAM QTY</th><th>RATE</th><th>VEHICLE</th><th>RECEIVED BY</th><th>APPROVAL</th><th>ACTION</th></tr>${rowsS}</table></div>`;
+window.saveSizing=function(){ try{let n=document.getElementById("s2").value.toUpperCase().trim(); if(!n) return alert("Quality Required"); DB["Sizing"].unshift({date:document.getElementById("s1").value,name:n,quality:n,cat:"SIZING",chalan:document.getElementById("sChalan").value.toUpperCase(),yarnQty:+document.getElementById("s3").value||0,sizingName:document.getElementById("sName").value.toUpperCase(),party:document.getElementById("sParty").value.toUpperCase(),beamQty:+document.getElementById("sBeam").value||0,rate:+document.getElementById("sRate").value||0,vehicle:document.getElementById("sVeh").value.toUpperCase(),receivedBy:document.getElementById("sRec").value.toUpperCase(),open:0,rec:+document.getElementById("s3").value||0,out:0,balance:+document.getElementById("s3").value||0,total:0,appr:"PENDING"}); saveDB(); renderPage();}catch(e){alert("Error - Data Not Lost.")} };
+return}
+if(cur==="Beams"){
+let tabB=getTab("Beams");
+let formB=canEntry()?`<div class="box no-print"><h3>Beams</h3><div class="grid4"><div><label>DATE</label><input id="b1" type="date" value="${today()}"></div><div><label>QUALITY</label><input id="b2" list="bList"><datalist id="bList">${nameOptions("Beams")}</datalist></div><div><label>COUNT</label><input id="bCount" placeholder="30/1"></div><div><label>OPENING BALANCE</label><input id="b3" type="number"></div><div><label>USED</label><input id="b4" type="number"></div><div><label>USED DATE</label><input id="bUseDate" type="date" value="${today()}"></div><div><label>USED BY - WEAVER</label><input id="bWho" placeholder="WEAVER NAME"></div><div><label>FINISH DATE</label><input id="bEnd" type="date"></div><div><label>LOOM NO</label><input id="bLoom"></div><div><label>RATE</label><input id="bRate" type="number"></div></div><button class="btnD" onclick="saveBeam()" style="width:auto">SAVE BEAM</button></div>`:`<div class="box">BOSS - VIEW ONLY</div>`;
+let rowsB=""; DB["Beams"].forEach((r,i)=>{ if(!matchesTab(r,"Beams",tabB)) return; rowsB+=`<tr><td>${fmtDate(r.date)}</td><td><b>${r.name}</b></td><td>${r.count||""}</td><td>${r.open}</td><td>${r.out}</td><td><b>${r.balance}</b></td><td>${fmt(r.total||0)}</td><td>${r.useDate?fmtDate(r.useDate):""}</td><td>${r.usedBy||""}</td><td>${r.endDate?fmtDate(r.endDate):""}</td><td>${r.loom||""}</td><td>${apprBadge(r.appr)}</td><td>${actionBtns("Beams",i)}</td></tr>`; });
+if(!rowsB) rowsB=`<tr><td colspan=13>No Entry Yet</td></tr>`;
+c.innerHTML=formB+`<div class="box">${tabBar("Beams")}<h3>Beams</h3><table><tr><th>DATE</th><th>QUALITY</th><th>COUNT</th><th>OPENING</th><th>USED</th><th>REMAINING</th><th>TOTAL</th><th>USED DATE</th><th>USED BY</th><th>FINISH DATE</th><th>LOOM</th><th>APPROVAL</th><th>ACTION</th></tr>${rowsB}</table></div>`;
+window.saveBeam=function(){ try{let n=document.getElementById("b2").value.toUpperCase().trim(); if(!n) return alert("Quality Required"); let o=+document.getElementById("b3").value||0; let out=+document.getElementById("b4").value||0; DB["Beams"].unshift({date:document.getElementById("b1").value,name:n,quality:n,cat:"READY",count:document.getElementById("bCount").value.toUpperCase(),open:o,rec:0,out:out,balance:o-out,total:o-out,useDate:document.getElementById("bUseDate").value,usedBy:document.getElementById("bWho").value.toUpperCase(),endDate:document.getElementById("bEnd").value,loom:document.getElementById("bLoom").value.toUpperCase(),rate:+document.getElementById("bRate").value||0,appr:"PENDING"}); saveDB(); renderPage();}catch(e){alert("Error - Data Not Lost.")} };
+return}
+if(cur==="Dyeing"){
+let tabD=getTab("Dyeing");
+let formD=canEntry()?`<div class="box no-print"><h3>Dyeing</h3><div class="grid4"><div><label>DATE SENT</label><input id="d1" type="date" value="${today()}"></div><div><label>DYEING NAME</label><input id="dName" placeholder="DYEING NAME"></div><div><label>QUALITY</label><input id="d2" list="dList"><datalist id="dList">${nameOptions("Dyeing")}</datalist></div><div><label>QTY SENT</label><input id="d3" type="number"></div><div><label>STOCK AT DYEING</label><input id="dMall" type="number"></div><div><label>RECEIVED FROM DYEING</label><input id="dRec" type="number"></div><div><label>RATE</label><input id="dRate" type="number"></div><div><label>RETURN DATE</label><input id="dRet" type="date"></div></div><button class="btnD" onclick="saveDyeing()" style="width:auto">SAVE DYEING</button></div>`:`<div class="box">BOSS - VIEW ONLY</div>`;
+let rowsD=""; DB["Dyeing"].forEach((r,i)=>{ if(!matchesTab(r,"Dyeing",tabD)) return; rowsD+=`<tr><td>${fmtDate(r.date)}</td><td><b>${r.dyeingName||r.name}</b></td><td>${r.quality||r.name}</td><td>${r.sent||r.rec||0}</td><td>${r.mallPara||0}</td><td>${r.received||0}</td><td><b>${r.balance}</b></td><td>${r.returnDate?fmtDate(r.returnDate):""}</td><td>${fmt(r.rate||0)}</td><td>${apprBadge(r.appr)}</td><td>${actionBtns("Dyeing",i)}</td></tr>`; });
+if(!rowsD) rowsD=`<tr><td colspan=11>No Entry Yet</td></tr>`;
+c.innerHTML=formD+`<div class="box">${tabBar("Dyeing")}<h3>Dyeing</h3><table><tr><th>DATE SENT</th><th>DYEING NAME</th><th>QUALITY</th><th>QTY SENT</th><th>STOCK AT DYEING</th><th>RECEIVED</th><th>BALANCE</th><th>RETURN DATE</th><th>RATE</th><th>APPROVAL</th><th>ACTION</th></tr>${rowsD}</table></div>`;
+window.saveDyeing=function(){ try{let n=document.getElementById("d2").value.toUpperCase().trim(); if(!n) return alert("Quality Required"); let sent=+document.getElementById("d3").value||0; let mall=+document.getElementById("dMall").value||0; let rec=+document.getElementById("dRec").value||0; DB["Dyeing"].unshift({date:document.getElementById("d1").value,name:n,quality:n,cat:"DYEING",dyeingName:document.getElementById("dName").value.toUpperCase(),sent:sent,mallPara:mall,received:rec,open:0,rec:sent,out:rec,balance:sent-rec,rate:+document.getElementById("dRate").value||0,total:mall,returnDate:document.getElementById("dRet").value,appr:"PENDING"}); saveDB(); renderPage();}catch(e){alert("Error - Data Not Lost.")} };
+return}
+if(cur==="Grey Stock"){
+let tabG=getTab("Grey Stock");
+let totalProd=0,totalRej=0;try{DB["Grey Stock"].forEach(x=>{if(x.appr!=="REJECTED"){totalProd+=(x.rec||0);totalRej+=(x.rejection||0)}})}catch(e){}
+let formG=canEntry()?`<div class="box no-print"><h3>Grey Stock - Daily Report</h3><div class="grid4"><div><label>DATE</label><input id="gg1" type="date" value="${today()}"></div><div><label>QUALITY</label><input id="gg2" list="ggList"><datalist id="ggList">${nameOptions("Grey Stock")}</datalist></div><div><label>CATEGORY</label><select id="ggCat"><option>GREY</option><option>REJECTED</option><option>CHECKED</option></select></div><div><label>OPENING BALANCE</label><input id="gg3" type="number"></div><div><label>PRODUCTION</label><input id="gg4" type="number"></div><div><label>REJECTION</label><input id="ggRej" type="number"></div><div><label>SALE / ISSUE</label><input id="gg5" type="number"></div><div><label>RATE</label><input id="gg6" type="number"></div></div><button class="btnD" onclick="saveGrey()" style="width:auto">SAVE GREY STOCK</button></div>`:`<div class="box">BOSS - VIEW ONLY</div>`;
+let grows=""; DB["Grey Stock"].forEach((gr,idx)=>{ if(!matchesTab(gr,"Grey Stock",tabG)) return; grows+=`<tr><td>${fmtDate(gr.date)}</td><td><b>${gr.name}</b></td><td>${gr.cat||""}</td><td>${gr.open}</td><td>${gr.rec}</td><td>${gr.rejection||0}</td><td>${gr.out}</td><td><b>${gr.balance}</b></td><td>${fmt(gr.rate||0)}</td><td>${fmt(gr.total||0)}</td><td>${apprBadge(gr.appr)}</td><td>${actionBtns("Grey Stock",idx)}</td></tr>`; });
+if(!grows) grows=`<tr><td colspan=12>No Entry Yet</td></tr>`;
+c.innerHTML=formG+`<div class="box"><h3>Daily Report - Total Production: ${fmt(totalProd)} | Total Rejection: ${fmt(totalRej)} | Net: ${fmt(totalProd-totalRej)}</h3>${tabBar("Grey Stock")}<table><tr><th>DATE</th><th>QUALITY</th><th>CATEGORY</th><th>OPENING</th><th>PRODUCTION</th><th>REJECTION</th><th>SALE</th><th>BALANCE</th><th>RATE</th><th>TOTAL</th><th>APPROVAL</th><th>ACTION</th></tr>${grows}</table></div>`;
+window.saveGrey=function(){ try{let n=document.getElementById("gg2").value.toUpperCase().trim(); if(!n) return alert("Quality Required"); let o=+document.getElementById("gg3").value||0; let r=+document.getElementById("gg4").value||0; let rej=+document.getElementById("ggRej").value||0; let out=+document.getElementById("gg5").value||0; let rate=+document.getElementById("gg6").value||0; DB["Grey Stock"].unshift({date:document.getElementById("gg1").value,name:n,quality:n,cat:document.getElementById("ggCat").value.toUpperCase(),open:o,rec:r,rejection:rej,out:out,balance:o+r-out,rate:rate,total:(o+r-out)*rate,appr:"PENDING"}); saveDB(); renderPage();}catch(e){alert("Error - Data Not Lost.")} };
+return}
+if(cur==="Meter Reading"){
+let tabM=getTab("Meter Reading");
+let facTotal=0,colTotal=0,facUnits=0,colUnits=0;try{DB["Meter Reading"].forEach(x=>{if(x.appr!=="REJECTED"){if(x.cat==="FACTORY"){facTotal+=(x.total||0);facUnits+=(x.units||0)} else if(x.cat==="COLONY"){colTotal+=(x.total||0);colUnits+=(x.units||0)}}})}catch(e){}
+let formM=canEntry()?`<div class="box no-print"><h3>Meter Reading - ${tabM}</h3><div class="grid4"><div><label>DATE</label><input id="m1" type="date" value="${today()}"></div><div><label>METER NO</label><input id="mNo" placeholder="MTR-001"></div><div><label>METER NAME / LOCATION</label><input id="mName" placeholder="FACTORY MAIN / COLONY HOUSE"></div><div><label>CATEGORY</label><select id="mCat"><option>FACTORY</option><option>COLONY</option></select></div><div><label>PREVIOUS READING</label><input id="mPrev" type="number" oninput="calcMeter()"></div><div><label>CURRENT READING</label><input id="mCurr" type="number" oninput="calcMeter()"></div><div><label>UNITS - AUTO</label><input id="mUnits" type="number" readonly style="background:#FEF9C3;font-weight:800"></div><div><label>RATE PER UNIT</label><input id="mRate" type="number" value="45" oninput="calcMeter()"></div><div><label>TOTAL BILL - AUTO</label><input id="mTotal" type="number" readonly style="background:#FEF9C3;font-weight:800"></div><div><label>PAID</label><input id="mPaid" type="number"></div></div><button class="btnD" onclick="saveMeter()" style="width:auto">SAVE METER READING</button></div>`:`<div class="box">BOSS - VIEW ONLY</div>`;
+let rowsM=""; DB["Meter Reading"].forEach((r,idx)=>{ if(!matchesTab(r,"Meter Reading",tabM)) return; rowsM+=`<tr><td>${fmtDate(r.date)}</td><td><b>${r.meterNo||""}</b></td><td><b>${r.name}</b></td><td>${r.cat||""}</td><td>${r.prev||0}</td><td>${r.curr||0}</td><td><b>${r.units||0}</b></td><td>${fmt(r.rate||0)}</td><td><b>Rs ${fmt(r.total||0)}</b></td><td>${fmt(r.paid||0)}</td><td><b>Rs ${fmt((r.total||0)-(r.paid||0))}</b></td><td>${apprBadge(r.appr)}</td><td>${actionBtns("Meter Reading",idx)}</td></tr>`; });
+if(!rowsM) rowsM=`<tr><td colspan=13>No Entry Yet</td></tr>`;
+c.innerHTML=formM+`<div class="box"><h3>Meter Summary - Factory: ${fmt(facUnits)} Units - Rs ${fmt(facTotal)} | Colony: ${fmt(colUnits)} Units - Rs ${fmt(colTotal)}</h3>${tabBar("Meter Reading")}<table><tr><th>DATE</th><th>METER NO</th><th>METER NAME</th><th>CATEGORY</th><th>PREVIOUS</th><th>CURRENT</th><th>UNITS</th><th>RATE</th><th>TOTAL BILL</th><th>PAID</th><th>REMAINING</th><th>APPROVAL</th><th>ACTION</th></tr>${rowsM}</table></div>`;
+window.calcMeter=function(){ let p=+document.getElementById("mPrev").value||0; let cu=+document.getElementById("mCurr").value||0; let rt=+document.getElementById("mRate").value||0; let u=Math.max(0,cu-p); document.getElementById("mUnits").value=u; document.getElementById("mTotal").value=u*rt; };
+window.saveMeter=function(){ try{let n=document.getElementById("mName").value.toUpperCase().trim(); if(!n) return alert("Meter Name Required"); let prev=+document.getElementById("mPrev").value||0; let curr=+document.getElementById("mCurr").value||0; let units=Math.max(0,curr-prev); let rate=+document.getElementById("mRate").value||0; let total=units*rate; let paid=+document.getElementById("mPaid").value||0; let catVal=document.getElementById("mCat").value.toUpperCase(); DB["Meter Reading"].unshift({date:document.getElementById("m1").value,name:n,quality:n,cat:catVal,meterNo:document.getElementById("mNo").value.toUpperCase(),prev:prev,curr:curr,units:units,rate:rate,total:total,paid:paid,open:prev,rec:units,out:0,balance:units,appr:"PENDING"}); saveDB(); renderPage();}catch(e){alert("Error - Data Not Lost.")} };
+return}
+if(cur==="Ledger"){
+let tab=window.ledgerTab||"PAYABLE";let selParty=window.ledgerParty||"ALL";let allParties=getAllParties();let dues=getDueReminders().filter(r=>r.type===tab);
+let formHtml=canEntry()?`<div class="box no-print"><h3>Ledger</h3><div class="grid4"><div><label>DATE</label><input id="l1" type="date" value="${today()}"></div><div><label>PARTY</label><input id="l2" list="ledP"><datalist id="ledP">${partyOptions()}</datalist></div><div><label>PARTY PHONE</label><input id="lPhone" placeholder="0300-1234567"></div><div><label>BILL NO</label><input id="l3"></div><div><label>PAYMENT MODE</label><select id="lMode" onchange="onPayModeChange()"><option>CASH</option><option>CHEQUE</option><option>ONLINE</option></select></div><div id="cashBox"><label>CASH - RECEIVED BY / PAID TO</label><input id="lCashBy" placeholder="Enter Name"></div><div id="chequeBox" style="display:none"><label>CHEQUE NO</label><input id="lCheque" placeholder="CHQ-555"><label>CHEQUE STATUS</label><select id="lChequeStatus"><option>RECEIVED</option><option>IN HAND</option><option>GIVEN</option><option>CLEARED</option><option>BOUNCED</option></select></div><div id="onlineBox" style="display:none"><label>TID NUMBER</label><input id="lTid" placeholder="TID-987654"></div><div><label>TYPE</label><select id="l4"><option>PAYABLE</option><option>RECEIVABLE</option></select></div><div><label>DEBIT</label><input id="l5" type="number"></div><div><label>CREDIT</label><input id="l6" type="number"></div><div><label>DUE DATE</label><input id="l7" type="date"></div><div><label>REMINDER DATE</label><input id="lRem" type="date" value="${today()}"></div><div><label>DETAILS</label><input id="l8" placeholder="YARN / DYEING / SIZING"></div></div><button class="btnD" onclick="saveLedger()" style="width:auto">SAVE IN LEDGER</button> <button class="btnG" onclick="window.print()">PRINT LEDGER</button></div>`:`<div class="box">${currentUser.role} - VIEW ONLY</div>`;
+let list=DB[cur].filter(x=>x.type===tab&&(selParty==="ALL"||x.party===selParty));
+let rows=list.map((r)=>{ let idx=DB[cur].indexOf(r); return `<tr><td>${fmtDate(r.date)}</td><td><b>${r.party}</b></td><td>${r.phone||""}</td><td>${r.bill}</td><td><b>${r.payMode||""}</b></td><td><b>${r.refNo||""}</b></td><td>${r.chequeStatus||""}</td><td>${r.cashBy||""}</td><td>${r.type}</td><td>${fmt(r.debit)}</td><td>${fmt(r.credit)}</td><td><b>${fmt(r.credit-r.debit)}</b></td><td>${r.due?fmtDate(r.due):""}</td><td>${r.remDate?fmtDate(r.remDate):""}</td><td>${r.details||""}</td><td>${apprBadge(r.appr)}</td><td>${actionBtns("Ledger",idx)}</td></tr>`; }).join("");
+if(!rows) rows=`<tr><td colspan=17>No Entry Yet</td></tr>`;
+c.innerHTML=`${formHtml}
+${dues.length?`<div class="remind"><h3>PAYMENT REMINDERS - ${dues.length} DUE - ${tab}</h3>${dues.map(r=>`<div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid #FECACA;flex-wrap:wrap;gap:8px"><span><b>${r.party}</b> - Bill ${r.bill} - ${r.payMode} ${r.refNo||""} - Rs ${fmt(r.credit-r.debit)} - Due ${fmtDate(r.due)}</span><button class="btnW" onclick="sendWhatsAppReminder('${r.party}','${r.phone||""}',${r.credit-r.debit},'${r.due}','${r.bill}','${r.refNo||""}','${r.payMode||""}')">SEND WHATSAPP</button></div>`).join("")}</div>`:""}
+<div class="box"><div style="display:flex;gap:10px"><button class="tabBtn ${tab==="PAYABLE"?"active":""}" onclick="setLedgerTab('PAYABLE')">PAYABLE</button><button class="tabBtn ${tab==="RECEIVABLE"?"active":""}" onclick="setLedgerTab('RECEIVABLE')">RECEIVABLE</button></div><div style="margin-top:12px"><label>FILTER BY PARTY</label><select onchange="setLedgerParty(this.value)"><option value="ALL">ALL PARTIES</option>${allParties.map(p=>`<option ${p===selParty?"selected":""} value="${p}">${p}</option>`).join("")}</select></div></div>
+<div class="box"><h3>${tab} Entries</h3><table><tr><th>DATE</th><th>PARTY</th><th>PHONE</th><th>BILL</th><th>PAYMENT MODE</th><th>REF NO</th><th>CHEQUE STATUS</th><th>CASH BY</th><th>TYPE</th><th>DEBIT</th><th>CREDIT</th><th>BALANCE</th><th>DUE</th><th>REMINDER</th><th>DETAILS</th><th>APPROVAL</th><th>ACTION</th></tr>${rows}</table></div>`;
+window.saveLedger=function(){ try{let p=document.getElementById("l2").value.toUpperCase().trim(); if(!p) return alert("Party Required"); let mode=document.getElementById("lMode").value; let refNo=""; let cashBy=document.getElementById("lCashBy").value.toUpperCase().trim(); let chequeStatus=document.getElementById("lChequeStatus")?document.getElementById("lChequeStatus").value:""; if(mode==="CASH"){ if(!cashBy) return alert("Cash Received By Required"); refNo="CASH"; } if(mode==="CHEQUE"){ refNo=document.getElementById("lCheque").value.toUpperCase().trim(); if(!refNo) return alert("Cheque No Required"); } if(mode==="ONLINE"){ refNo=document.getElementById("lTid").value.toUpperCase().trim(); if(!refNo) return alert("TID Required"); } DB["Ledger"].unshift({date:document.getElementById("l1").value,party:p,phone:document.getElementById("lPhone").value.trim(),bill:document.getElementById("l3").value.toUpperCase(),payMode:mode,refNo:refNo,chequeStatus:chequeStatus,cashBy:cashBy,type:document.getElementById("l4").value,debit:+document.getElementById("l5").value||0,credit:+document.getElementById("l6").value||0,due:document.getElementById("l7").value,remDate:document.getElementById("lRem").value,details:document.getElementById("l8").value.toUpperCase(),appr:"PENDING"}); saveDB(); renderPage();}catch(e){alert("Error - Data Not Lost.")} };
+return}
+if(cur==="Salary"){
+let days=DB._meta.salaryDays||30; let heading=DB._meta.salaryHeading||"SALARY SHEET - NAFEES FABRICS INTERNATIONAL";
+let formS=canEntry()?`<div class="box no-print"><h3>Salary And Attendance</h3><label>HEADING - EDITABLE</label><input id="salHead" value="${heading}" oninput="try{DB._meta.salaryHeading=this.value;saveDB()}catch(e){}" style="font-weight:800;background:#FEF9C3"><div class="grid4" style="margin-top:10px"><div><label>DAYS - 15 / 16 / 26 / 30 / 31</label><select id="salDaysSel" onchange="DB._meta.salaryDays=+this.value;saveDB();renderPage()"><option ${days===15?"selected":""} value="15">15 Days</option><option ${days===16?"selected":""} value="16">16 Days</option><option ${days===26?"selected":""} value="26">26 Days</option><option ${days===30?"selected":""} value="30">30 Days</option><option ${days===31?"selected":""} value="31">31 Days</option></select></div><div><label>WORKER NAME</label><input id="w1"></div><div><label>DESIGNATION</label><input id="w2"></div><div><label>MONTHLY SALARY</label><input id="w3" type="number"></div><div><label>DIVIDE BY</label><select id="w4"><option value="30">30</option><option value="26">26</option><option value="31">31</option></select></div><div><label>ADVANCE</label><input id="w5" type="number"></div><div><label>EXTRA DAYS</label><input id="wExtra" type="number" value="0"></div></div><button class="btnD" onclick="saveWorker()" style="width:auto">ADD WORKER</button></div>`:`<div class="box">BOSS - VIEW ONLY</div>`;
+let headCols=""; for(let h=1;h<=days;h++) headCols+=`<th>${h}</th>`;
+let sRows=""; DB["Salary"].forEach((rw,si)=>{ let cells=""; for(let ad=1;ad<=days;ad++){ let vv=rw.att ? (rw.att[ad]||"P") : "P"; cells+=`<td class="att ${vv}" onclick="toggleAtt(${si},${ad})">${vv}</td>`; } sRows+=`<tr><td><b>${rw.name}</b></td><td>${rw.desig}</td><td>${fmt(rw.salary)}</td>${cells}<td><b>${rw.present}</b></td><td><input type="number" value="${rw.extra||0}" onchange="updateExtra(${si},this.value)" style="width:55px;margin:0"></td><td>${fmt(rw.adv)}</td><td><b>Rs ${fmt(rw.payable)}</b></td><td>${actionBtns("Salary",si)}</td></tr>`; });
+if(!sRows) sRows=`<tr><td colspan=20>No Worker Yet</td></tr>`;
+c.innerHTML=formS+`<div class="box"><h2 style="text-align:center">${heading}</h2><div style="overflow-x:auto"><table><tr><th>WORKER</th><th>DESIGNATION</th><th>SALARY</th>${headCols}<th>PRESENT</th><th>EXTRA</th><th>ADVANCE</th><th>PAYABLE</th><th>ACTION</th></tr>${sRows}</table></div></div>`;
+window.updateExtra=function(idx,val){ try{let r=DB["Salary"][idx]; r.extra=+val||0; let pres=0; let dc=DB._meta.salaryDays||30; for(let i=1;i<=dc;i++){ let v=r.att[i]||"P"; if(v==="P") pres+=1; else if(v==="H") pres+=0.5; } r.present=pres; r.payable=Math.round(r.salary/r.div*(pres+r.extra)-r.adv); saveDB(); renderPage();}catch(e){} };
+window.saveWorker=function(){ try{let n=document.getElementById("w1").value.toUpperCase().trim(); let s=+document.getElementById("w3").value||0; if(!n||!s) return alert("Name And Salary Required"); let att={}; for(let i=1;i<=31;i++) att[i]="P"; let div=+document.getElementById("w4").value||30; let adv=+document.getElementById("w5").value||0; let extra=+document.getElementById("wExtra").value||0; let dc=DB._meta.salaryDays||30; DB["Salary"].unshift({name:n,desig:document.getElementById("w2").value.toUpperCase()||"WEAVER",salary:s,div:div,adv:adv,extra:extra,att:att,present:dc,payable:Math.round(s/div*(dc+extra)-adv),appr:"PENDING"}); saveDB(); renderPage();}catch(e){alert("Error - Data Not Lost.")} };
+window.toggleAtt=function(idx,day){ try{let r=DB["Salary"][idx]; if(!r.att) r.att={}; let curV=r.att[day]||"P"; let nxt=curV==="P"?"A":curV==="A"?"H":curV==="H"?"L":"P"; r.att[day]=nxt; let pres=0; let dc=DB._meta.salaryDays||30; for(let i=1;i<=dc;i++){ let v=r.att[i]||"P"; if(v==="P") pres+=1; else if(v==="H") pres+=0.5; } r.present=pres; r.payable=Math.round(r.salary/r.div*(pres+(r.extra||0))-r.adv); saveDB(); renderPage();}catch(e){} };
+return}
+if(cur==="User Management"){
+if(currentUser.role!=="ADMIN"){ c.innerHTML='<div class="box"><h3>Access Denied - Only Admin</h3></div>'; return; }
+let uRows=""; for(let k in USERS){ uRows+=`<tr><td><b>${k}</b></td><td>${USERS[k].name}</td><td>${USERS[k].role}</td><td>${USERS[k].pass}</td><td><input id="acc_${k}" value="${USERS[k].access||"ALL"}" style="margin:0"></td><td><button class="btnL" onclick="saveAcc('${k}')">SAVE ACCESS</button></td></tr>`; }
+c.innerHTML=`<div class="box"><h3>User Management</h3><table><tr><th>USERNAME</th><th>NAME</th><th>ROLE</th><th>PASSWORD</th><th>ACCESS</th><th>ACTION</th></tr>${uRows}</table></div>`;
+window.saveAcc=function(k){ try{USERS[k].access=document.getElementById("acc_"+k).value; saveUsers(); alert("Access Saved");}catch(e){} };
+return}
+let isReadyPage=(cur==="Ready Stock"||cur==="Shop Ready Stock");
+if(isReadyPage){
+let curTab=getTab(cur);
+let formR=canEntry()?`<div class="box no-print"><h3>${cur} - ${curTab}</h3><div class="grid4"><div><label>DATE</label><input id="r1" type="date" value="${today()}"></div><div><label>QUALITY</label><input id="r2" list="rList"><datalist id="rList">${nameOptions(cur)}</datalist></div><div><label>CATEGORY</label><select id="rCat"><option>THAAN</option><option>SUIT</option><option>T.P SUIT</option><option>B GRADE</option><option>CUT PIECE</option><option>CUTTING</option></select></div>${curTab==="CUTTING"?`<div><label>THAAN CUT - QTY</label><input id="rCutThaan" type="number"></div><div><label>SUIT MADE</label><input id="rCutSuit" type="number"></div><div><label>CUT PIECE - METER</label><input id="rCutPiece" type="number"></div>`:`<div><label>OPENING</label><input id="r3" type="number"></div><div><label>RECEIVED</label><input id="r4" type="number"></div><div><label>SALE / ISSUE</label><input id="r5" type="number"></div>`}<div><label>RATE</label><input id="r6" type="number"></div></div><button class="btnD" onclick="saveReady()" style="width:auto">SAVE ${cur} - ${curTab}</button></div>`:`<div class="box">BOSS - VIEW ONLY</div>`;
+let rowsR=""; DB[cur].forEach((gr,idx)=>{ if(!matchesTab(gr,cur,curTab)) return; rowsR+=`<tr><td>${fmtDate(gr.date)}</td><td><b>${gr.name}</b></td><td>${gr.cat||""}</td><td>${gr.open}</td><td>${gr.rec}</td><td>${gr.out}</td><td><b>${gr.balance}</b></td><td>${gr.cutThaan||""}</td><td>${gr.cutSuit||""}</td><td>${gr.cutPiece||""}</td><td>${fmt(gr.rate||0)}</td><td>${fmt(gr.total||0)}</td><td>${apprBadge(gr.appr)}</td><td>${actionBtns(cur,idx)}</td></tr>`; });
+if(!rowsR) rowsR=`<tr><td colspan=14>No Entry Yet</td></tr>`;
+c.innerHTML=formR+`<div class="box">${tabBar(cur)}<h3>${cur} - ${curTab}</h3><table><tr><th>DATE</th><th>QUALITY</th><th>CATEGORY</th><th>OPENING</th><th>RECEIVED</th><th>ISSUE</th><th>BALANCE</th><th>CUT THAAN</th><th>CUT SUIT</th><th>CUT PIECE METER</th><th>RATE</th><th>TOTAL</th><th>APPROVAL</th><th>ACTION</th></tr>${rowsR}</table></div>`;
+window.saveReady=function(){ try{let n=document.getElementById("r2").value.toUpperCase().trim(); if(!n) return alert("Quality Required"); let catVal=document.getElementById("rCat").value.toUpperCase(); let o=0,r=0,out=0,cutThaan=0,cutSuit=0,cutPiece=0; if(curTab==="CUTTING"||catVal==="CUTTING"){ cutThaan=+document.getElementById("rCutThaan").value||0; cutSuit=+document.getElementById("rCutSuit").value||0; cutPiece=+document.getElementById("rCutPiece").value||0; } else { o=+document.getElementById("r3").value||0; r=+document.getElementById("r4").value||0; out=+document.getElementById("r5").value||0; } let rate=+document.getElementById("r6").value||0; DB[cur].unshift({date:document.getElementById("r1").value,name:n,quality:n,cat:catVal,open:o,rec:r,out:out,balance:o+r-out,cutThaan:cutThaan,cutSuit:cutSuit,cutPiece:cutPiece,rate:rate,total:(o+r-out)*rate,appr:"PENDING"}); saveDB(); renderPage();}catch(e){alert("Error - Data Not Lost.")} };
+return}
+let isOther=["Contract","Shopify"].includes(cur);
+if(isOther){
+let curTab=getTab(cur);
+let catOpts=TABS[cur] ? TABS[cur].filter(t=>t!=="ALL") : [];
+let catSelect = catOpts.length ? `<select id="gCat"><option>${catOpts.join("</option><option>")}</option></select>` : `<input id="gCat">`;
+let formG=canEntry()?`<div class="box no-print"><h3>${cur} - ${curTab}</h3><div class="grid4"><div><label>DATE</label><input id="g1" type="date" value="${today()}"></div><div><label>NAME / QUALITY</label><input id="g2" list="gList"><datalist id="gList">${nameOptions(cur)}</datalist></div><div><label>CATEGORY</label>${catSelect}</div><div><label>OPENING / QTY</label><input id="g3" type="number"></div><div><label>RECEIVED / PRODUCTION</label><input id="g4" type="number"></div><div><label>ISSUE / SALE</label><input id="g5" type="number"></div><div><label>RATE</label><input id="g6" type="number"></div><div><label>PAID</label><input id="g7" type="number"></div></div><button class="btnD" onclick="saveGeneric()" style="width:auto">SAVE ${cur}</button></div>`:`<div class="box">BOSS - VIEW ONLY</div>`;
+let grows=""; DB[cur].forEach((gr,idx)=>{ if(!matchesTab(gr,cur,curTab)) return; grows+=`<tr><td>${fmtDate(gr.date)}</td><td><b>${gr.name}</b></td><td>${gr.cat||""}</td><td>${gr.open}</td><td>${gr.rec}</td><td>${gr.out}</td><td><b>${gr.balance}</b></td><td>${fmt(gr.rate||0)}</td><td>${fmt(gr.total||0)}</td><td>${apprBadge(gr.appr)}</td><td>${actionBtns(cur,idx)}</td></tr>`; });
+if(!grows) grows=`<tr><td colspan=11>No Entry Yet</td></tr>`;
+c.innerHTML=formG+`<div class="box">${tabBar(cur)}<h3>${cur} - ${curTab}</h3><table><tr><th>DATE</th><th>NAME / QUALITY</th><th>CATEGORY</th><th>OPENING</th><th>RECEIVED</th><th>ISSUE</th><th>BALANCE</th><th>RATE</th><th>TOTAL</th><th>APPROVAL</th><th>ACTION</th></tr>${grows}</table></div>`;
+window.saveGeneric=function(){ try{let n=document.getElementById("g2").value.toUpperCase().trim(); if(!n) return alert("Name Required"); let o=+document.getElementById("g3").value||0; let r=+document.getElementById("g4").value||0; let out=+document.getElementById("g5").value||0; let rate=+document.getElementById("g6").value||0; let paid=+document.getElementById("g7").value||0; let catVal=document.getElementById("gCat") ? document.getElementById("gCat").value.toUpperCase() : ""; if(catVal==="ALL") catVal=catOpts[0]||"WEAVER"; DB[cur].unshift({date:document.getElementById("g1").value,name:n,quality:n,cat:catVal,open:o,rec:r,out:out,balance:o+r-out,rate:rate,total:(o+r-out)*rate,paid:paid,appr:"PENDING"}); saveDB(); renderPage();}catch(e){alert("Error - Data Not Lost.")} };
+return}
 }
-
-async function logAudit(action, detail){
-  try{ await addDoc(collection(db,"audit"), {user: currentUser?.email||"Unknown", role: currentRole, action, detail, time: serverTimestamp()}); }catch(e){}
-}
-
-window.doLogin = async ()=>{
-  const e=document.getElementById('loginEmail').value, p=document.getElementById('loginPass').value;
-  try{ await signInWithEmailAndPassword(auth,e,p); }catch(err){ document.getElementById('loginMsg').innerText = err.message; }
-}
-window.doSignup = async ()=>{
-  const e=document.getElementById('loginEmail').value, p=document.getElementById('loginPass').value;
-  if(!e||!p) return alert("Enter Email + Password");
-  try{ const u=await createUserWithEmailAndPassword(auth,e,p); await addDoc(collection(db,"users"),{name:"Admin",email:e,role:"admin"}); alert("Admin Created. Now Login."); }catch(err){ alert(err.message); }
-}
-window.doLogout = async ()=>{ await signOut(auth); location.reload(); }
-
-window.createUser = async ()=>{
-  const name=document.getElementById('uName').value, email=document.getElementById('uEmail').value, pass=document.getElementById('uPass').value, role=document.getElementById('uRole').value;
-  if(!name||!email||!pass) return alert("Fill all fields");
-  try{
-    // Create user via second app to keep admin logged in
-    const secondApp = initializeApp(firebaseConfig, "secondary");
-    const { getAuth: getAuth2, createUserWithEmailAndPassword: create2 } = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js");
-    const auth2 = getAuth2(secondApp);
-    await create2(auth2, email, pass);
-    await addDoc(collection(db,"users"),{name,email,role});
-    await logAudit("User Created", `Created ${role} - ${name} (${email})`);
-    document.getElementById('userMsg').innerText = `User Created: ${name} - Password: ${pass} - Share this with Boss/Manager`;
-    document.getElementById('userMsg').style.color="green";
-    loadAll();
-  }catch(err){ alert(err.message); }
-}
-
-window.addCustomer = async ()=>{ const n=document.getElementById('cName').value; if(!n) return; await addDoc(collection(db,"customers"),{name:n, phone:document.getElementById('cPhone').value, city:document.getElementById('cCity').value, time:serverTimestamp()}); await logAudit("Customer Added", n); loadAll(); }
-window.addOrder = async ()=>{ const c=document.getElementById('oCust').value, amt=Number(document.getElementById('oAmount').value||0); if(!c) return; await addDoc(collection(db,"orders"),{customer:c, fabric:document.getElementById('oFabric').value, meter:Number(document.getElementById('oMeter').value||0), amount:amt, status:document.getElementById('oStatus').value, time:serverTimestamp()}); await logAudit("Sale Added", `${c} - Rs.${amt}`); loadAll(); }
-window.addStock = async ()=>{ const f=document.getElementById('sFabric').value; if(!f) return; await addDoc(collection(db,"stock"),{fabric:f, meter:Number(document.getElementById('sMeter').value||0), price:Number(document.getElementById('sPrice').value||0), time:serverTimestamp()}); await logAudit("Stock Added", f); loadAll(); }
-
-window.exportExcel = ()=>{
-  let csv="Type,Name,Amount\n";
-  document.querySelectorAll('#ordersList div').forEach(d=>{ csv+=d.innerText.replaceAll("\n",",")+"\n"; });
-  const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'})); a.download='nafees-fabrics.csv'; a.click();
-  logAudit("Export", "Exported Excel / CSV");
-}
-
-async function loadAll(){
-  const custSnap=await getDocs(collection(db,"customers"));
-  const orderSnap=await getDocs(query(collection(db,"orders"), orderBy("time","desc")));
-  const stockSnap=await getDocs(collection(db,"stock"));
-  const usersSnap=await getDocs(collection(db,"users"));
-  const auditSnap=await getDocs(query(collection(db,"audit"), orderBy("time","desc")));
-  let totalSale=0, udhaar=0;
-  let ordersHtml="", todayHtml="", recentHtml="", payHtml="";
-  orderSnap.forEach(d=>{ const o=d.data(); totalSale+=o.amount||0; if(o.status!=="Paid") udhaar+=o.amount||0; const row=`<div class="flex justify-between border p-3 rounded-lg"><span>${o.customer} - ${o.fabric} (${o.meter} m)</span><span class="font-bold">Rs. ${o.amount} - ${o.status}</span></div>`; ordersHtml+=row; payHtml+=row; todayHtml+=row; recentHtml+=row; });
-  document.getElementById('statCustomers').innerText=custSnap.size;
-  document.getElementById('statOrders').innerText=orderSnap.size;
-  document.getElementById('statSale').innerText="Rs. "+totalSale.toLocaleString();
-  document.getElementById('statUdhaar').innerText="Rs. "+udhaar.toLocaleString();
-  document.getElementById('ordersList').innerHTML=ordersHtml||"No orders yet";
-  document.getElementById('todayOrders').innerHTML=todayHtml||"No orders today";
-  document.getElementById('recentSale').innerHTML=recentHtml||"No sale yet";
-  document.getElementById('paymentsList').innerHTML=payHtml||"No payments yet";
-  let cHtml=""; custSnap.forEach(d=>{ const c=d.data(); cHtml+=`<div class="flex justify-between border p-3 rounded-lg"><span>${c.name}</span><span>${c.phone||""} - ${c.city||""}</span></div>`; }); document.getElementById('customersList').innerHTML=cHtml||"No customers";
-  let sHtml=""; stockSnap.forEach(d=>{ const s=d.data(); sHtml+=`<div class="flex justify-between border p-3 rounded-lg"><span>${s.fabric}</span><span>${s.meter} Meter - Rs.${s.price}/m</span></div>`; }); document.getElementById('stockList').innerHTML=sHtml||"No stock";
-  let uHtml=""; usersSnap.forEach(d=>{ const u=d.data(); uHtml+=`<div class="flex justify-between border p-3 rounded-lg"><span>${u.name} - ${u.email}</span><span class="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-xs font-bold">${u.role}</span></div>`; }); document.getElementById('usersList').innerHTML=uHtml||"No users yet";
-  let aHtml=""; auditSnap.forEach(d=>{ const a=d.data(); aHtml+=`<div class="border p-3 rounded-lg text-sm"><span class="font-bold">${a.user}</span> <span class="text-slate-500">[${a.role}]</span> - ${a.action} - ${a.detail} <span class="text-slate-400">${a.time?.toDate?.().toLocaleString()||""}</span></div>`; }); document.getElementById('auditList').innerHTML=aHtml||"No audit yet";
-}
-
-onAuthStateChanged(auth, async (user)=>{
-  if(user){
-    currentUser=user;
-    document.getElementById('loginPage').classList.add('hidden');
-    document.getElementById('appPage').classList.remove('hidden');
-    document.getElementById('userInfo').innerText=user.email;
-    document.getElementById('welcomeName').innerText=user.email.split('@')[0];
-    // Find role
-    const snap=await getDocs(collection(db,"users"));
-    snap.forEach(d=>{ if(d.data().email===user.email) currentRole=d.data().role; });
-    if(currentRole==="manager"){ document.getElementById('usersMenu').style.display="none"; document.getElementById('page-audit').innerHTML="<p>Access Denied</p>"; }
-    loadAll();
-    const ctx=document.getElementById('saleChart');
-    if(ctx) new Chart(ctx,{type:'line',data:{labels:['Jan','Feb','Mar','Apr','May','Jun'],datasets:[{label:'Sale',data:[12000,19000,15000,25000,22000,32000],borderColor:'#2563eb',fill:true,backgroundColor:'rgba(37,99,235,0.1)',tension:0.4}]},options:{plugins:{legend:{display:false}}}});
-  }
-});
-</script>
-</body>
-</html>
+document.addEventListener("keydown",function(e){ if(e.key==="Enter" && !document.getElementById("loginScreen").classList.contains("hidden")) doLogin(); });
+if(currentUser) showApp();
+</script></body></html>
