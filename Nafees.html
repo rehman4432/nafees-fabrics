@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nafees Fabrics - ERP</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>body{font-family:Inter,system-ui} .sidebar a.active{background:#fff;color:#2563eb}</style>
+</head>
+<body class="bg-[#f1f5f9]">
+
+<!-- LOGIN -->
+<div id="loginPage" class="min-h-screen flex items-center justify-center p-4">
+  <div class="bg-white w-full max-w-md rounded-2xl shadow p-8">
+    <div class="flex items-center gap-2 mb-1"><div class="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center text-white font-bold text-xl">N</div><h1 class="text-2xl font-bold">Nafees Fabrics</h1></div>
+    <p class="text-slate-500 text-sm mb-6">Login to your account</p>
+    <label class="text-sm font-medium">Email</label>
+    <input id="loginEmail" class="w-full border rounded-lg p-3 mt-1 mb-3" placeholder="admin@nafees.com">
+    <label class="text-sm font-medium">Password</label>
+    <input id="loginPass" type="password" class="w-full border rounded-lg p-3 mt-1 mb-2" placeholder="******">
+    <button onclick="doLogin()" class="w-full bg-blue-600 text-white p-3 rounded-lg font-semibold mt-2">Login</button>
+    <p class="text-xs text-center mt-4 text-slate-500">First time? Create Admin below</p>
+    <button onclick="doSignup()" class="w-full border p-3 rounded-lg mt-2 font-medium">Create Admin Account</button>
+    <p id="loginMsg" class="text-red-500 text-sm mt-3 text-center"></p>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="appPage" class="hidden flex">
+  <!-- SIDEBAR -->
+  <div class="w-[240px] bg-[#2563eb] min-h-screen text-white p-5 fixed">
+    <div class="flex items-center gap-2 mb-8"><div class="w-9 h-9 bg-white rounded-lg flex items-center justify-center text-blue-600 font-bold">N</div><div><p class="font-bold leading-none">Nafees Fabrics</p><p class="text-[11px] text-blue-200">ERP System</p></div></div>
+    <p class="text-[11px] text-blue-200 mb-2">MENU</p>
+    <div class="sidebar space-y-1">
+      <a href="#" onclick="showPage('dashboard')" class="active block p-2.5 rounded-lg">Dashboard</a>
+      <a href="#" onclick="showPage('customers')" class="block p-2.5 rounded-lg">Customers</a>
+      <a href="#" onclick="showPage('orders')" class="block p-2.5 rounded-lg">Orders / Sale</a>
+      <a href="#" onclick="showPage('stock')" class="block p-2.5 rounded-lg">Stock / Inventory</a>
+      <a href="#" onclick="showPage('payments')" class="block p-2.5 rounded-lg">Payments</a>
+      <a href="#" onclick="showPage('audit')" class="block p-2.5 rounded-lg">Audit Log</a>
+      <a href="#" onclick="showPage('users')" id="usersMenu" class="block p-2.5 rounded-lg">Users</a>
+    </div>
+    <div class="absolute bottom-5 left-5 right-5">
+      <p id="userInfo" class="text-sm mb-2"></p>
+      <button onclick="doLogout()" class="w-full bg-white text-blue-600 p-2 rounded-lg font-semibold">Logout</button>
+    </div>
+  </div>
+
+  <!-- MAIN -->
+  <div class="ml-[240px] flex-1 p-6">
+    <div class="flex justify-between items-center mb-6"><div><h2 class="text-2xl font-bold">Dashboard</h2><p class="text-slate-500 text-sm">Welcome back, <span id="welcomeName">Admin</span></p></div><button onclick="exportExcel()" class="bg-blue-600 text-white px-4 py-2 rounded-lg">Export Excel</button></div>
+
+    <!-- DASHBOARD -->
+    <div id="page-dashboard">
+      <div class="grid grid-cols-4 gap-4 mb-6">
+        <div class="bg-white p-5 rounded-xl shadow-sm"><p class="text-slate-500 text-sm">Total Customers</p><h3 id="statCustomers" class="text-3xl font-bold mt-1">0</h3><p class="text-green-500 text-xs mt-1">▲ 12% from last month</p></div>
+        <div class="bg-white p-5 rounded-xl shadow-sm"><p class="text-slate-500 text-sm">Today Orders</p><h3 id="statOrders" class="text-3xl font-bold mt-1">0</h3><p class="text-green-500 text-xs mt-1">▲ 8% from yesterday</p></div>
+        <div class="bg-white p-5 rounded-xl shadow-sm"><p class="text-slate-500 text-sm">Total Sale</p><h3 id="statSale" class="text-3xl font-bold mt-1">Rs. 0</h3><p class="text-green-500 text-xs mt-1">▲ 18% from last month</p></div>
+        <div class="bg-white p-5 rounded-xl shadow-sm"><p class="text-slate-500 text-sm">Pending Udhaar</p><h3 id="statUdhaar" class="text-3xl font-bold mt-1 text-red-500">Rs. 0</h3><p class="text-red-500 text-xs mt-1">12 pending payments</p></div>
+      </div>
+      <div class="grid grid-cols-3 gap-4 mb-6">
+        <div class="col-span-2 bg-white p-5 rounded-xl shadow-sm"><h4 class="font-bold mb-3">Monthly Sale</h4><canvas id="saleChart" height="140"></canvas></div>
+        <div class="bg-white p-5 rounded-xl shadow-sm"><h4 class="font-bold mb-3">Fabric Overview</h4><div class="space-y-3 text-sm"><div><div class="flex justify-between"><span>Lawn</span><span>42%</span></div><div class="h-2 bg-slate-100 rounded"><div class="h-2 bg-blue-600 rounded" style="width:42%"></div></div></div><div><div class="flex justify-between"><span>Cotton</span><span>28%</span></div><div class="h-2 bg-slate-100 rounded"><div class="h-2 bg-green-500 rounded" style="width:28%"></div></div></div><div><div class="flex justify-between"><span>Chiffon</span><span>18%</span></div><div class="h-2 bg-slate-100 rounded"><div class="h-2 bg-orange-400 rounded" style="width:18%"></div></div></div><div><div class="flex justify-between"><span>Other</span><span>12%</span></div><div class="h-2 bg-slate-100 rounded"><div class="h-2 bg-purple-500 rounded" style="width:12%"></div></div></div></div></div>
+      </div>
+      <div class="grid grid-cols-2 gap-4">
+        <div class="bg-white p-5 rounded-xl shadow-sm"><h4 class="font-bold mb-3">Today Orders</h4><div id="todayOrders" class="space-y-3 text-sm"></div></div>
+        <div class="bg-white p-5 rounded-xl shadow-sm"><h4 class="font-bold mb-3">Recent Sale</h4><div id="recentSale" class="space-y-3 text-sm"></div></div>
+      </div>
+    </div>
+
+    <!-- USERS -->
+    <div id="page-users" class="hidden bg-white p-6 rounded-xl">
+      <h3 class="font-bold text-lg mb-1">Users Management</h3><p class="text-slate-500 text-sm mb-4">Admin can create Boss / Manager with custom password</p>
+      <div class="grid grid-cols-4 gap-3 mb-4">
+        <input id="uName" class="border p-3 rounded-lg" placeholder="Full Name - e.g. Boss">
+        <input id="uEmail" class="border p-3 rounded-lg" placeholder="Email">
+        <input id="uPass" class="border p-3 rounded-lg" placeholder="Your Choice Password">
+        <select id="uRole" class="border p-3 rounded-lg"><option value="boss">Boss</option><option value="manager">Manager</option></select>
+      </div>
+      <button onclick="createUser()" class="bg-blue-600 text-white px-5 py-2.5 rounded-lg font-semibold">Create User</button>
+      <p id="userMsg" class="text-sm mt-2"></p>
+      <div id="usersList" class="mt-5 space-y-2"></div>
+    </div>
+
+    <!-- OTHER PAGES -->
+    <div id="page-customers" class="hidden bg-white p-6 rounded-xl"><h3 class="font-bold text-lg mb-4">Add Customer</h3><div class="grid grid-cols-3 gap-3"><input id="cName" class="border p-3 rounded-lg" placeholder="Customer Name"><input id="cPhone" class="border p-3 rounded-lg" placeholder="Phone"><input id="cCity" class="border p-3 rounded-lg" placeholder="City"></div><button onclick="addCustomer()" class="bg-blue-600 text-white px-5 py-2.5 rounded-lg mt-3">Save Customer</button><div id="customersList" class="mt-5 space-y-2"></div></div>
+    <div id="page-orders" class="hidden bg-white p-6 rounded-xl"><h3 class="font-bold text-lg mb-4">New Order / Sale</h3><div class="grid grid-cols-4 gap-3"><input id="oCust" class="border p-3 rounded-lg" placeholder="Customer Name"><input id="oFabric" class="border p-3 rounded-lg" placeholder="Fabric - Lawn"><input id="oMeter" type="number" class="border p-3 rounded-lg" placeholder="Meters"><input id="oAmount" type="number" class="border p-3 rounded-lg" placeholder="Amount Rs."></div><select id="oStatus" class="border p-3 rounded-lg mt-3"><option>Paid</option><option>Pending</option><option>Udhaar</option></select><button onclick="addOrder()" class="bg-blue-600 text-white px-5 py-2.5 rounded-lg mt-3 ml-2">Save Sale</button><div id="ordersList" class="mt-5 space-y-2"></div></div>
+    <div id="page-stock" class="hidden bg-white p-6 rounded-xl"><h3 class="font-bold text-lg mb-4">Add Stock</h3><div class="grid grid-cols-3 gap-3"><input id="sFabric" class="border p-3 rounded-lg" placeholder="Fabric Name"><input id="sMeter" type="number" class="border p-3 rounded-lg" placeholder="Meters"><input id="sPrice" type="number" class="border p-3 rounded-lg" placeholder="Price / Meter"></div><button onclick="addStock()" class="bg-blue-600 text-white px-5 py-2.5 rounded-lg mt-3">Save Stock</button><div id="stockList" class="mt-5 space-y-2"></div></div>
+    <div id="page-payments" class="hidden bg-white p-6 rounded-xl"><h3 class="font-bold text-lg mb-4">Payments</h3><p class="text-slate-500 text-sm">All payments from Orders show here. Total Sale and Udhaar auto calculated.</p><div id="paymentsList" class="mt-4 space-y-2"></div></div>
+    <div id="page-audit" class="hidden bg-white p-6 rounded-xl"><h3 class="font-bold text-lg mb-4">Audit Log - Who Did What, When</h3><p class="text-slate-500 text-sm mb-4">Cannot be deleted. Only Admin & Boss can see.</p><div id="auditList" class="space-y-2"></div></div>
+  </div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged, createUserWithEmailAndPassword as createSecondary } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getFirestore, collection, addDoc, getDocs, query, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+const firebaseConfig = { apiKey:"AIzaSyBkHScpFfi-DsS9fiD-oOQaraYq-oHI5r4", authDomain:"nafees-fabrics-erp.firebaseapp.com", projectId:"nafees-fabrics-erp", storageBucket:"nafees-fabrics-erp.firebasestorage.app", messagingSenderId:"571493138786", appId:"1:571493138786:web:c7f44f8a1b819a77702c3b", measurementId:"G-HZ5E8HNFCG" };
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+let currentUser = null, currentRole = "admin";
+
+window.showPage = (p)=>{
+  ['dashboard','users','customers','orders','stock','payments','audit'].forEach(x=>document.getElementById('page-'+x).classList.add('hidden'));
+  document.getElementById('page-'+p).classList.remove('hidden');
+  document.querySelectorAll('.sidebar a').forEach(a=>a.classList.remove('active'));
+  loadAll();
+}
+
+async function logAudit(action, detail){
+  try{ await addDoc(collection(db,"audit"), {user: currentUser?.email||"Unknown", role: currentRole, action, detail, time: serverTimestamp()}); }catch(e){}
+}
+
+window.doLogin = async ()=>{
+  const e=document.getElementById('loginEmail').value, p=document.getElementById('loginPass').value;
+  try{ await signInWithEmailAndPassword(auth,e,p); }catch(err){ document.getElementById('loginMsg').innerText = err.message; }
+}
+window.doSignup = async ()=>{
+  const e=document.getElementById('loginEmail').value, p=document.getElementById('loginPass').value;
+  if(!e||!p) return alert("Enter Email + Password");
+  try{ const u=await createUserWithEmailAndPassword(auth,e,p); await addDoc(collection(db,"users"),{name:"Admin",email:e,role:"admin"}); alert("Admin Created. Now Login."); }catch(err){ alert(err.message); }
+}
+window.doLogout = async ()=>{ await signOut(auth); location.reload(); }
+
+window.createUser = async ()=>{
+  const name=document.getElementById('uName').value, email=document.getElementById('uEmail').value, pass=document.getElementById('uPass').value, role=document.getElementById('uRole').value;
+  if(!name||!email||!pass) return alert("Fill all fields");
+  try{
+    // Create user via second app to keep admin logged in
+    const secondApp = initializeApp(firebaseConfig, "secondary");
+    const { getAuth: getAuth2, createUserWithEmailAndPassword: create2 } = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js");
+    const auth2 = getAuth2(secondApp);
+    await create2(auth2, email, pass);
+    await addDoc(collection(db,"users"),{name,email,role});
+    await logAudit("User Created", `Created ${role} - ${name} (${email})`);
+    document.getElementById('userMsg').innerText = `User Created: ${name} - Password: ${pass} - Share this with Boss/Manager`;
+    document.getElementById('userMsg').style.color="green";
+    loadAll();
+  }catch(err){ alert(err.message); }
+}
+
+window.addCustomer = async ()=>{ const n=document.getElementById('cName').value; if(!n) return; await addDoc(collection(db,"customers"),{name:n, phone:document.getElementById('cPhone').value, city:document.getElementById('cCity').value, time:serverTimestamp()}); await logAudit("Customer Added", n); loadAll(); }
+window.addOrder = async ()=>{ const c=document.getElementById('oCust').value, amt=Number(document.getElementById('oAmount').value||0); if(!c) return; await addDoc(collection(db,"orders"),{customer:c, fabric:document.getElementById('oFabric').value, meter:Number(document.getElementById('oMeter').value||0), amount:amt, status:document.getElementById('oStatus').value, time:serverTimestamp()}); await logAudit("Sale Added", `${c} - Rs.${amt}`); loadAll(); }
+window.addStock = async ()=>{ const f=document.getElementById('sFabric').value; if(!f) return; await addDoc(collection(db,"stock"),{fabric:f, meter:Number(document.getElementById('sMeter').value||0), price:Number(document.getElementById('sPrice').value||0), time:serverTimestamp()}); await logAudit("Stock Added", f); loadAll(); }
+
+window.exportExcel = ()=>{
+  let csv="Type,Name,Amount\n";
+  document.querySelectorAll('#ordersList div').forEach(d=>{ csv+=d.innerText.replaceAll("\n",",")+"\n"; });
+  const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'})); a.download='nafees-fabrics.csv'; a.click();
+  logAudit("Export", "Exported Excel / CSV");
+}
+
+async function loadAll(){
+  const custSnap=await getDocs(collection(db,"customers"));
+  const orderSnap=await getDocs(query(collection(db,"orders"), orderBy("time","desc")));
+  const stockSnap=await getDocs(collection(db,"stock"));
+  const usersSnap=await getDocs(collection(db,"users"));
+  const auditSnap=await getDocs(query(collection(db,"audit"), orderBy("time","desc")));
+  let totalSale=0, udhaar=0;
+  let ordersHtml="", todayHtml="", recentHtml="", payHtml="";
+  orderSnap.forEach(d=>{ const o=d.data(); totalSale+=o.amount||0; if(o.status!=="Paid") udhaar+=o.amount||0; const row=`<div class="flex justify-between border p-3 rounded-lg"><span>${o.customer} - ${o.fabric} (${o.meter} m)</span><span class="font-bold">Rs. ${o.amount} - ${o.status}</span></div>`; ordersHtml+=row; payHtml+=row; todayHtml+=row; recentHtml+=row; });
+  document.getElementById('statCustomers').innerText=custSnap.size;
+  document.getElementById('statOrders').innerText=orderSnap.size;
+  document.getElementById('statSale').innerText="Rs. "+totalSale.toLocaleString();
+  document.getElementById('statUdhaar').innerText="Rs. "+udhaar.toLocaleString();
+  document.getElementById('ordersList').innerHTML=ordersHtml||"No orders yet";
+  document.getElementById('todayOrders').innerHTML=todayHtml||"No orders today";
+  document.getElementById('recentSale').innerHTML=recentHtml||"No sale yet";
+  document.getElementById('paymentsList').innerHTML=payHtml||"No payments yet";
+  let cHtml=""; custSnap.forEach(d=>{ const c=d.data(); cHtml+=`<div class="flex justify-between border p-3 rounded-lg"><span>${c.name}</span><span>${c.phone||""} - ${c.city||""}</span></div>`; }); document.getElementById('customersList').innerHTML=cHtml||"No customers";
+  let sHtml=""; stockSnap.forEach(d=>{ const s=d.data(); sHtml+=`<div class="flex justify-between border p-3 rounded-lg"><span>${s.fabric}</span><span>${s.meter} Meter - Rs.${s.price}/m</span></div>`; }); document.getElementById('stockList').innerHTML=sHtml||"No stock";
+  let uHtml=""; usersSnap.forEach(d=>{ const u=d.data(); uHtml+=`<div class="flex justify-between border p-3 rounded-lg"><span>${u.name} - ${u.email}</span><span class="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-xs font-bold">${u.role}</span></div>`; }); document.getElementById('usersList').innerHTML=uHtml||"No users yet";
+  let aHtml=""; auditSnap.forEach(d=>{ const a=d.data(); aHtml+=`<div class="border p-3 rounded-lg text-sm"><span class="font-bold">${a.user}</span> <span class="text-slate-500">[${a.role}]</span> - ${a.action} - ${a.detail} <span class="text-slate-400">${a.time?.toDate?.().toLocaleString()||""}</span></div>`; }); document.getElementById('auditList').innerHTML=aHtml||"No audit yet";
+}
+
+onAuthStateChanged(auth, async (user)=>{
+  if(user){
+    currentUser=user;
+    document.getElementById('loginPage').classList.add('hidden');
+    document.getElementById('appPage').classList.remove('hidden');
+    document.getElementById('userInfo').innerText=user.email;
+    document.getElementById('welcomeName').innerText=user.email.split('@')[0];
+    // Find role
+    const snap=await getDocs(collection(db,"users"));
+    snap.forEach(d=>{ if(d.data().email===user.email) currentRole=d.data().role; });
+    if(currentRole==="manager"){ document.getElementById('usersMenu').style.display="none"; document.getElementById('page-audit').innerHTML="<p>Access Denied</p>"; }
+    loadAll();
+    const ctx=document.getElementById('saleChart');
+    if(ctx) new Chart(ctx,{type:'line',data:{labels:['Jan','Feb','Mar','Apr','May','Jun'],datasets:[{label:'Sale',data:[12000,19000,15000,25000,22000,32000],borderColor:'#2563eb',fill:true,backgroundColor:'rgba(37,99,235,0.1)',tension:0.4}]},options:{plugins:{legend:{display:false}}}});
+  }
+});
+</script>
+</body>
+</html>
